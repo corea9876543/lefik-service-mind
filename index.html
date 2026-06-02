@@ -114,6 +114,16 @@
   .quote.mark>*{position:relative;}
   .sub{font-size:clamp(14px,1.5vw,19px);color:var(--brand);margin-top:16px;line-height:1.55;}
 
+  /* 한 마디 더 — 추가 예시 멘트 (한·영) */
+  .more{margin-top:20px;display:flex;flex-wrap:wrap;gap:11px;align-items:stretch;}
+  .more .lbl{flex-basis:100%;font-weight:800;color:var(--gold);font-size:clamp(13px,1.5vw,19px);
+    letter-spacing:.01em;}
+  .more .m{flex:1;min-width:236px;background:rgba(255,255,255,.62);border:1px solid var(--gold-soft);
+    border-radius:16px;padding:11px 16px;box-shadow:var(--shadow-sm);}
+  .more .m .kr{display:block;font-size:clamp(13px,1.45vw,18px);font-weight:700;color:var(--ink-strong);line-height:1.4;}
+  .more .m .en{display:block;margin-top:5px;font-size:clamp(11.5px,1.18vw,15px);font-weight:500;color:var(--brand);line-height:1.38;}
+  .more .m .n{color:var(--brand);font-weight:600;font-size:.92em;}
+
   /* 칩 3개 */
   .chips{display:flex;gap:24px;flex-wrap:wrap;}
   .chip{flex:1;min-width:210px;background:var(--card);
@@ -184,9 +194,11 @@
   .slide.active .big,.slide.active .tagrow,.slide.active .line,.slide.active>p,
   .slide.active .card,.slide.active .ba .col,.slide.active .chip,.slide.active .jstep,
   .slide.active .person,.slide.active .glang .g,.slide.active .journey,
-  .slide.active .chips,.slide.active .row,.slide.active .quiz-people{
+  .slide.active .chips,.slide.active .row,.slide.active .quiz-people,
+  .slide.active .more{
     animation:rise .7s cubic-bezier(.16,.84,.34,1) both;
   }
+  .slide.active .more{animation-delay:.36s;}
   .slide.active.center .big{animation:glowin .8s ease both;}
   /* 스태거 */
   .slide.active h2{animation-delay:.06s;}
@@ -358,6 +370,12 @@
         <p class="sub">전화·입장 모두 이 한 마디부터. 첫 5초가 두 시간을 좌우합니다.</p>
       </div>
     </div>
+    <div class="more">
+      <span class="lbl">레픽다운 한 마디 더 ✨ <span style="color:var(--brand);font-weight:600;">한국어 · English</span></span>
+      <span class="m"><span class="kr">"예약 도와드릴까요? 원하시는 날짜는요?"</span><span class="en">May I help you book? What date works for you?</span></span>
+      <span class="m"><span class="kr">"오시는 길, 문자로 보내드릴게요 😊"</span><span class="en">I'll text you the directions. 😊</span></span>
+      <span class="m"><span class="kr">"끝으로 날짜·시간 한 번 더 확인드릴게요."</span><span class="en">Let me confirm your date and time once more.</span></span>
+    </div>
   </section>
 
   <!-- 11. ② 입장·접수 -->
@@ -375,6 +393,12 @@
         <p class="quote mark"><span>개인정보는 <b>포스트잇</b>으로 조용히.<br>"불편하신 점 있으세요?" 시선 한 번.</span></p>
         <p class="sub">"개인정보 큰 소리로 물어 불쾌했다"는 실제 컴플레인을 사전 차단.</p>
       </div>
+    </div>
+    <div class="more">
+      <span class="lbl">레픽다운 한 마디 더 ✨ <span style="color:var(--brand);font-weight:600;">한국어 · English</span></span>
+      <span class="m"><span class="kr">"어서 오세요, 기다리셨죠? 😊"</span><span class="en">Welcome! Thank you for coming in. 😊</span></span>
+      <span class="m"><span class="kr">"음료가 필요하시면 편하게 커피바 이용하셔도 됩니다 :)"</span><span class="en">Please feel free to help yourself at the coffee bar. :)</span></span>
+      <span class="m"><span class="kr">"실례지만 여권 부탁드릴 수 있을까요?"</span><span class="en">May I see your passport, please?</span></span>
     </div>
   </section>
 
@@ -394,6 +418,12 @@
         <p class="sub">5분 → 음료 / 15분 → 순서 조정 제안 / 30분+ → 매니저·의사 직접 사과</p>
       </div>
     </div>
+    <div class="more">
+      <span class="lbl">레픽다운 한 마디 더 ✨ <span style="color:var(--brand);font-weight:600;">한국어 · English</span></span>
+      <span class="m"><span class="kr">"접수가 완료되면 클렌징 서비스 도와드린 뒤에 상담이 진행될 예정입니다."</span><span class="en">After check-in, we'll help you cleanse, then your consultation begins.</span></span>
+      <span class="m"><span class="kr">"잠시 로비에 앉아 계시면 클렌징 안내드리겠습니다. 5분 정도 걸리실 것 같습니다."</span><span class="en">Please have a seat in the lobby — we'll guide you to cleansing in about 5 minutes.</span></span>
+      <span class="m"><span class="kr">"더 늦어지면 먼저 말씀드릴게요."</span><span class="en">If it runs longer, I'll let you know first.</span></span>
+    </div>
   </section>
 
   <!-- 13. ④ 진단·동선 -->
@@ -411,6 +441,12 @@
         <p class="quote mark"><span>락커 · 세안실 · 촬영실 · 상담실까지<br><b>직접 동행</b>.</span></p>
         <p class="sub">동선 안내가 곧 안심감. "다음에 뭘 하지?" 고민을 없앱니다.</p>
       </div>
+    </div>
+    <div class="more">
+      <span class="lbl">레픽다운 한 마디 더 ✨ <span style="color:var(--brand);font-weight:600;">한국어 · English</span></span>
+      <span class="m"><span class="kr">"이쪽으로 안내해드릴게요." <span class="n">(앞장서서)</span></span><span class="en">This way, please — I'll show you.</span></span>
+      <span class="m"><span class="kr">"가운 갈아입으실 때 도와드릴게요."</span><span class="en">I'll help you change into the gown.</span></span>
+      <span class="m"><span class="kr">"다음은 마크뷰 촬영을 진행하겠습니다."</span><span class="en">Next, we'll take your Mark-Vu skin scan.</span></span>
     </div>
   </section>
 
@@ -430,6 +466,12 @@
         <p class="sub">필러·실·캐뉼라는 <b>고객 눈앞에서 개봉</b> — 신뢰는 보여주는 것.</p>
       </div>
     </div>
+    <div class="more">
+      <span class="lbl">레픽다운 한 마디 더 ✨ <span style="color:var(--brand);font-weight:600;">한국어 · English</span></span>
+      <span class="m"><span class="kr">"긴장되시죠? 크게 숨 한 번 쉴게요~"</span><span class="en">Feeling nervous? Let's take a deep breath together.</span></span>
+      <span class="m"><span class="kr">"마취크림 원하시면 더 바르고 계셔도 됩니다."</span><span class="en">We can leave the numbing cream on longer if you'd like.</span></span>
+      <span class="m"><span class="kr">"불편하면 손 들어주세요, 바로 멈추겠습니다."</span><span class="en">Raise your hand anytime — we'll stop right away.</span></span>
+    </div>
   </section>
 
   <!-- 15. ⑥ 시술·관리 -->
@@ -448,6 +490,12 @@
         <p class="sub">시술은 손기술만이 아닙니다. 동반자도 케어 대상.</p>
       </div>
     </div>
+    <div class="more">
+      <span class="lbl">레픽다운 한 마디 더 ✨ <span style="color:var(--brand);font-weight:600;">한국어 · English</span></span>
+      <span class="m"><span class="kr">"반 정도 왔어요, 잘하고 계세요 👍"</span><span class="en">We're about halfway — you're doing great. 👍</span></span>
+      <span class="m"><span class="kr">"소리 조금 나요, 놀라지 마세요~"</span><span class="en">You'll hear a little sound — don't worry.</span></span>
+      <span class="m"><span class="kr">"마지막 부위만 남았어요!"</span><span class="en">Just the last area to go!</span></span>
+    </div>
   </section>
 
   <!-- 16. ⑦ 마무리·귀가 -->
@@ -465,6 +513,12 @@
         <p class="quote mark"><span>시술별 루틴 챙김 + 예후 안내 + 다음 예약</span></p>
         <p class="sub">제모=스테로이드 연고 / 필러 3cc↑=항생제 · "필러는 1~3일 붓고 2주면 자리잡아요" · 듀오덤 7~10일</p>
       </div>
+    </div>
+    <div class="more">
+      <span class="lbl">레픽다운 한 마디 더 ✨ <span style="color:var(--brand);font-weight:600;">한국어 · English</span></span>
+      <span class="m"><span class="kr">"오늘 사우나·음주는 피해주세요."</span><span class="en">Please avoid sauna and alcohol today.</span></span>
+      <span class="m"><span class="kr">"붓기·멍은 자연스러운 과정이에요."</span><span class="en">Some swelling and bruising is completely normal.</span></span>
+      <span class="m"><span class="kr">"다음 방문, 예약 도와드릴까요?"</span><span class="en">Shall I book your next visit?</span></span>
     </div>
   </section>
 
