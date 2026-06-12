@@ -1,0 +1,9 @@
+{
+  "session": "claude/rayban-remote-monitoring-5x34bs",
+  "state": "running",
+  "headline": "글랜스 모니터 준비 완료",
+  "task": "폰·레이밴 글랜스 모니터링",
+  "step": { "current": 5, "total": 5 },
+  "needsInput": false,
+  "updatedAt": "2026-06-12T10:30:35Z"
+}
