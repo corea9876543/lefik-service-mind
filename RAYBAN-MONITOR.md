@@ -1,6 +1,6 @@
-# 밖에서 Claude 세션 모니터링 — 폰 & 레이밴 디스플레이
+# 밖에서 Claude 세션 모니터링 + 질문 — 폰 & 레이밴 디스플레이
 
-폰과 Meta Ray-Ban Display 렌즈에서 **같은 글랜스 페이지**로 Claude 작업 진행을 보는 구성.
+폰과 Meta Ray-Ban Display 렌즈에서 **같은 글랜스 페이지**로 Claude 작업을 **보고(모니터링)** + **묻는(질문)** 구성.
 
 ## 구성 파일
 
@@ -9,6 +9,11 @@
 | `monitor.html` | 글랜스 모니터. `status.json`을 폴링해 상태를 표시. 폰=풀뷰 / 좁은 렌즈 뷰포트=초압축 모드 자동 전환 |
 | `status.json` | 현재 세션 상태 데이터 |
 | `update-status.sh` | 상태를 `status.json`으로 기록(+선택적 push)하는 헬퍼 |
+| `ask.html` | 글랜스 질문 페이지. 텍스트(핸드라이팅)·브라우저 음성 입력 → 답을 렌즈/폰에 표시 |
+| `backend/ask-server.mjs` | Claude API 호출(경로 A) + 세션 큐 적재(경로 B). 공식 SDK 사용, 키는 서버에만 |
+| `inbox.json` | 경로 B 질문 큐 |
+| `read-inbox.sh` / `answer-inbox.sh` | 세션이 큐의 질문을 읽고 답을 써넣는 헬퍼 |
+| `companion/` | 렌즈 마이크 음성용 네이티브(Swift/Kotlin) 골격 + 가이드 |
 
 ## 데이터 흐름
 
@@ -66,6 +71,38 @@ GitHub Pages (정적 호스팅: monitor.html + status.json)
 - Toolkit은 개발자 프리뷰 단계. **자기 안경에 테스트는 가능**하지만 **일반 배포는 선정 파트너만** (2026년 중 확대 예정)
 - 안경은 독립 기기가 아니라 **폰 컴패니언 앱의 출력 화면** → 원격 연결·로직은 폰/클라우드가 담당
 - 그래서 렌즈에는 "전체 로그"가 아니라 **한두 줄 글랜스**(지금 무슨 단계 / 막혔나)가 적합
+
+## 질문하기 (ask) — 경로 A & B
+
+`ask.html`은 모니터와 같은 글랜스 규격(검정 배경·고대비)이라 폰과 렌즈에서 같이 작동한다.
+
+```
+입력(텍스트/핸드라이팅/음성) → ask.html → POST {backend}/ask
+   ├─ target=model   → Claude API 직접 호출 → 답을 화면에 표시          (경로 A)
+   └─ target=session → inbox.json 큐 적재 → 세션이 read/answer → 폴링 수신  (경로 B)
+```
+
+### 백엔드 실행
+```bash
+cd backend && npm install
+ANTHROPIC_API_KEY=sk-ant-... npm start    # :8787
+```
+- **키는 서버에만.** 클라이언트(렌즈 JS)에 절대 두지 않음 → 그래서 백엔드가 필수.
+- 모델은 `claude-opus-4-8`, 글랜스용으로 1~3문장 짧게 답하도록 system 지시 + effort `low`.
+- 페이지에서 백엔드 주소 지정: `ask.html?api=https://your-backend.example.com`
+
+### 경로 B — 작업 중 세션에 질문/답
+안경에서 온 질문은 `inbox.json`에 쌓인다. 세션(나)은:
+```bash
+./read-inbox.sh                       # 대기 중 질문 보기
+./answer-inbox.sh q_abc123 "여기에 답"  # 답 써넣기 (--push로 Pages 갱신)
+```
+`ask.html`이 `GET /inbox/:id`를 폴링해 답을 받아 렌즈에 표시한다.
+
+### 음성
+- **폰/브라우저**: `ask.html`의 🎙️ 버튼 = Web Speech API(`ko-KR`). 지금 작동, 말 끝나면 자동 전송.
+- **렌즈 마이크**: 모바일 SDK의 오디오 딥 액세스 필요 → `companion/` 의 Swift/Kotlin 골격으로 구현.
+  같은 `backend/ask-server.mjs`를 공유하므로 로직 중복 없음.
 
 ## 상태 스키마 (`status.json`)
 ```json

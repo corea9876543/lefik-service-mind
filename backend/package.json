@@ -1,0 +1,13 @@
+{
+  "name": "rayban-ask-backend",
+  "version": "1.0.0",
+  "type": "module",
+  "private": true,
+  "description": "레이밴/폰에서 Claude에게 질문하는 글랜스 백엔드 (경로 A: 모델 질문, 경로 B: 세션 큐)",
+  "scripts": {
+    "start": "node ask-server.mjs"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.88.0"
+  }
+}

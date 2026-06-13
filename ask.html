@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<meta name="theme-color" content="#000000">
+<title>Claude에게 묻기</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<style>
+  /*
+    글랜스 ask. 검정 배경 + 밝은 텍스트(렌즈에서 검정은 투명).
+    입력: 텍스트(레이밴 Neural Handwriting로도 입력됨) + 브라우저 음성(Web Speech API).
+    대상: model = Claude API에 직접(경로 A) / session = 작업 중 세션 큐(경로 B).
+  */
+  :root{
+    --bg:#000; --fg:#fff; --dim:#8a8a8a; --line:rgba(255,255,255,.16);
+    --accent:#4ea1ff; --busy:#ffc24e; --ok:#5fd07a;
+    --font:'Pretendard Variable','Apple SD Gothic Neo',system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{height:100%;}
+  body{
+    font-family:var(--font);background:var(--bg);color:var(--fg);
+    -webkit-font-smoothing:antialiased;display:flex;align-items:center;justify-content:center;
+    padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  }
+  #app{width:100%;max-width:560px;padding:clamp(20px,6vw,40px);display:flex;flex-direction:column;gap:clamp(14px,3vh,22px);}
+
+  .targets{display:flex;gap:8px;}
+  .targets button{
+    flex:1;padding:10px;border:1px solid var(--line);border-radius:12px;background:transparent;
+    color:var(--dim);font-family:inherit;font-weight:700;font-size:clamp(12px,3.4vw,14px);cursor:pointer;
+  }
+  .targets button[aria-pressed="true"]{background:var(--accent);color:#000;border-color:var(--accent);}
+
+  .inputrow{display:flex;gap:10px;align-items:flex-end;}
+  textarea{
+    flex:1;min-height:64px;max-height:30vh;resize:none;padding:14px;border-radius:14px;
+    border:1px solid var(--line);background:rgba(255,255,255,.05);color:var(--fg);
+    font-family:inherit;font-size:clamp(16px,4.4vw,20px);line-height:1.35;
+  }
+  textarea::placeholder{color:var(--dim);}
+  .mic{
+    flex:0 0 auto;width:56px;height:56px;border-radius:50%;border:1px solid var(--line);
+    background:rgba(255,255,255,.05);color:var(--fg);font-size:24px;cursor:pointer;
+  }
+  .mic[aria-pressed="true"]{background:var(--busy);color:#000;border-color:var(--busy);animation:pulse 1.4s infinite;}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 var(--busy);}100%{box-shadow:0 0 0 14px transparent;}}
+
+  .ask{
+    padding:16px;border-radius:14px;border:none;background:var(--accent);color:#000;
+    font-family:inherit;font-weight:800;font-size:clamp(16px,4.4vw,19px);cursor:pointer;
+  }
+  .ask:disabled{opacity:.5;cursor:default;}
+
+  .answer{
+    min-height:48px;padding:16px;border-radius:14px;background:rgba(255,255,255,.06);
+    font-size:clamp(18px,5vw,24px);line-height:1.4;white-space:pre-wrap;
+  }
+  .answer:empty{display:none;}
+  .meta{font-size:clamp(11px,3vw,13px);color:var(--dim);min-height:1em;}
+  .meta.busy{color:var(--busy);}
+  .meta.ok{color:var(--ok);}
+
+  /* 레이밴/초소형 글랜스: 대상 토글·메타 숨기고 핵심만 */
+  @media (max-width:420px), (max-aspect-ratio:1/1){
+    .targets{display:none;}
+    #app{gap:clamp(10px,2.5vh,16px);padding:clamp(14px,5vw,24px);}
+  }
+</style>
+</head>
+<body>
+<main id="app">
+  <div class="targets" role="group" aria-label="질문 대상">
+    <button id="tModel"   aria-pressed="true">모델에게 (A)</button>
+    <button id="tSession" aria-pressed="false">이 세션에 (B)</button>
+  </div>
+
+  <div class="inputrow">
+    <textarea id="q" rows="2" placeholder="질문을 입력하거나 마이크를 누르세요…" autofocus></textarea>
+    <button id="mic" class="mic" aria-pressed="false" title="음성 입력">🎙️</button>
+  </div>
+
+  <button id="ask" class="ask">묻기</button>
+
+  <div class="answer" id="answer"></div>
+  <div class="meta" id="meta"></div>
+</main>
+
+<script>
+  const params = new URLSearchParams(location.search);
+  // 백엔드 주소: ?api= 로 지정. 기본은 같은 호스트의 :8787
+  const API = (params.get('api') || `${location.protocol}//${location.hostname}:8787`).replace(/\/$/, '');
+
+  const $ = id => document.getElementById(id);
+  let target = 'model';
+  let pollTimer = null;
+
+  function setTarget(t){
+    target = t;
+    $('tModel').setAttribute('aria-pressed', String(t === 'model'));
+    $('tSession').setAttribute('aria-pressed', String(t === 'session'));
+  }
+  $('tModel').onclick   = () => setTarget('model');
+  $('tSession').onclick = () => setTarget('session');
+
+  function meta(text, cls=''){ const m = $('meta'); m.textContent = text; m.className = 'meta ' + cls; }
+
+  async function ask(){
+    const question = $('q').value.trim();
+    if(!question) return;
+    $('ask').disabled = true; $('answer').textContent = ''; clearInterval(pollTimer);
+    meta(target === 'model' ? '생각 중…' : '세션에 전달 중…', 'busy');
+    try{
+      const res = await fetch(API + '/ask', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ question, target }),
+      });
+      const data = await res.json();
+      if(!res.ok) throw new Error(data.error || res.status);
+
+      if(target === 'model'){
+        $('answer').textContent = data.answer || '(빈 응답)';
+        meta('답변 완료', 'ok');
+      }else{
+        meta('세션 대기 중… 답이 오면 표시됩니다', 'busy');
+        pollSession(data.id);
+      }
+    }catch(e){
+      meta('오류: ' + e.message);
+    }finally{
+      $('ask').disabled = false;
+    }
+  }
+  $('ask').onclick = ask;
+
+  // 경로 B: 세션이 answer-inbox.sh로 답을 쓸 때까지 폴링
+  function pollSession(id){
+    pollTimer = setInterval(async () => {
+      try{
+        const r = await fetch(`${API}/inbox/${encodeURIComponent(id)}?t=${Date.now()}`);
+        if(!r.ok) return;
+        const item = await r.json();
+        if(item.status === 'answered'){
+          clearInterval(pollTimer);
+          $('answer').textContent = item.answer;
+          meta('세션이 답함', 'ok');
+        }
+      }catch{}
+    }, 3000);
+  }
+
+  // ── 음성 입력 (브라우저 Web Speech API) ──
+  // 폰 브라우저에서 작동. 실제 레이밴 렌즈 마이크는 네이티브 컴패니언 앱 필요(companion/ 참고).
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(SR){
+    const rec = new SR();
+    rec.lang = 'ko-KR'; rec.interimResults = true; rec.continuous = false;
+    let listening = false;
+    $('mic').onclick = () => { listening ? rec.stop() : rec.start(); };
+    rec.onstart = () => { listening = true; $('mic').setAttribute('aria-pressed','true'); meta('듣는 중…','busy'); };
+    rec.onend   = () => { listening = false; $('mic').setAttribute('aria-pressed','false'); meta(''); };
+    rec.onerror = (e) => meta('음성 오류: ' + e.error);
+    rec.onresult = (e) => {
+      let text = '';
+      for(const r of e.results) text += r[0].transcript;
+      $('q').value = text;
+      if(e.results[e.results.length-1].isFinal) setTimeout(ask, 200); // 말 끝나면 자동 전송
+    };
+  }else{
+    $('mic').disabled = true;
+    $('mic').title = '이 브라우저는 음성 미지원 — 텍스트로 입력하세요';
+  }
+</script>
+</body>
+</html>
