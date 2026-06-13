@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=600, height=600, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<title>Claude on Glasses</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<!--
+  Meta Ray-Ban Display 웹 앱.
+  스펙: 600x600 / 검정 배경(검정=투명) / D-pad(방향키) 내비게이션 / 고대비 / .focusable
+  테스트: 브라우저에서 화살표키 = D-pad, Enter = 선택
+  배포: 공개 HTTPS URL → Meta AI 앱 → Devices → Display Glasses → App connections → Web apps → Add a web app
+-->
+<body>
+  <div id="stage">
+
+    <!-- ===== 모니터 화면 ===== -->
+    <section class="screen active" id="screen-monitor">
+      <header class="bar">
+        <span class="dot" id="m-dot"></span>
+        <span class="state" id="m-state">RUNNING</span>
+      </header>
+      <div class="headline" id="m-headline">연결 중…</div>
+      <div class="bar2"><i id="m-bar"></i></div>
+      <div class="sub"><span id="m-step">—</span><span id="m-rel">—</span></div>
+
+      <button class="focusable nav" data-goto="screen-ask" id="m-go-ask">묻기 화면 ▶</button>
+    </section>
+
+    <!-- ===== 질문 화면 ===== -->
+    <section class="screen" id="screen-ask">
+      <header class="bar">
+        <button class="focusable chip" id="a-target" data-target="model">대상: 모델</button>
+        <button class="focusable chip nav" data-goto="screen-monitor">◀ 모니터</button>
+      </header>
+
+      <!-- 핸드라이팅/입력: 포커스 후 Neural Handwriting로 입력 -->
+      <input class="focusable" id="a-input" type="text" placeholder="질문 (핸드라이팅)" />
+      <button class="focusable primary" id="a-send">묻기</button>
+
+      <div class="answer" id="a-answer"></div>
+      <div class="meta" id="a-meta"></div>
+    </section>
+
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>

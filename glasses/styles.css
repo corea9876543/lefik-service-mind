@@ -1,0 +1,60 @@
+/*
+  레이밴 디스플레이 웹 앱 스타일.
+  검정 배경 = 렌즈에서 투명. 밝은 고대비 텍스트. 600x600 고정.
+*/
+:root{
+  --fg:#fff; --dim:#9a9a9a; --line:rgba(255,255,255,.18);
+  --run:#4ea1ff; --wait:#ffc24e; --done:#5fd07a; --err:#ff6b5e;
+  --accent:var(--run);
+  --font:'Pretendard Variable','Apple SD Gothic Neo',system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{width:600px;height:600px;background:#000;color:var(--fg);
+  font-family:var(--font);-webkit-font-smoothing:antialiased;overflow:hidden;}
+
+#stage{position:relative;width:600px;height:600px;}
+
+.screen{position:absolute;inset:0;display:none;flex-direction:column;gap:20px;padding:40px;}
+.screen.active{display:flex;}
+
+.bar{display:flex;align-items:center;gap:14px;}
+.bar2{height:14px;border-radius:99px;background:rgba(255,255,255,.12);overflow:hidden;}
+.bar2 > i{display:block;height:100%;width:0;background:var(--accent);
+  border-radius:99px;transition:width .5s ease;}
+
+.dot{width:18px;height:18px;border-radius:50%;background:var(--accent);flex:0 0 auto;}
+.live .dot{animation:pulse 1.6s infinite;}
+@keyframes pulse{0%{box-shadow:0 0 0 0 var(--accent);}100%{box-shadow:0 0 0 20px transparent;}}
+
+.state{font-size:22px;font-weight:800;letter-spacing:.12em;color:var(--accent);}
+.headline{font-size:46px;font-weight:800;line-height:1.15;}
+.sub{display:flex;justify-content:space-between;font-size:22px;font-weight:700;color:var(--dim);}
+
+/* 상태별 색 */
+body[data-state="running"]{--accent:var(--run);}
+body[data-state="waiting"]{--accent:var(--wait);}
+body[data-state="done"]   {--accent:var(--done);}
+body[data-state="error"]  {--accent:var(--err);}
+body.stale{--accent:var(--dim);}
+
+/* 입력/버튼 */
+input{width:100%;font-family:inherit;font-size:30px;padding:18px;border-radius:14px;
+  background:rgba(255,255,255,.06);border:1px solid var(--line);color:var(--fg);}
+input::placeholder{color:var(--dim);}
+
+button{font-family:inherit;cursor:pointer;border:1px solid var(--line);
+  background:rgba(255,255,255,.06);color:var(--fg);border-radius:14px;}
+.primary{padding:18px;font-size:30px;font-weight:800;background:var(--accent);color:#000;border-color:var(--accent);}
+.nav{padding:14px;font-size:22px;font-weight:700;}
+.chip{padding:10px 16px;font-size:20px;font-weight:700;}
+
+.answer{flex:1;font-size:30px;line-height:1.35;white-space:pre-wrap;overflow:hidden;}
+.meta{font-size:20px;color:var(--dim);min-height:1em;}
+.meta.busy{color:var(--wait);} .meta.ok{color:var(--done);}
+
+/* ===== D-pad 포커스 — 가장 중요: 어떤 요소가 선택돼 있는지 또렷하게 ===== */
+.focusable{outline:none;}
+.focusable.focused{
+  box-shadow:0 0 0 4px var(--accent);
+  border-color:var(--accent);
+}
