@@ -44,11 +44,18 @@ cd backend && npm install && ANTHROPIC_API_KEY=... npm start   # :8787
 ### 백엔드 주소 연결
 `glasses/app.js`의 `CONFIG.askBackend` 를 위 배포 주소로 바꾸고 ①을 다시 배포.
 
-## ③ 안경에 등록
+## ③ 안경에 등록 (정식 등록/승인 불필요 — Developer Mode 토글만)
 
-**Meta AI 앱 → Devices → Display Glasses settings → App connections → Web apps → Add a web app**
+**먼저 Developer Mode 켜기** (한 번만):
+- 폰 **Meta AI 앱 → Settings → App Info → 앱 버전 번호 5번 탭 → Developer Mode 토글 ON**
+
+**그다음 웹 앱 추가:**
+- **App Connections → Web Apps → Add a web app**
 - 이름: `Claude`
 - URL: ① 에서 받은 HTTPS 주소 (`…/glasses/` 또는 `…vercel.app`)
+- → 안경 앱 그리드 맨 아래에 바로 나타남
+
+> 본인 안경 테스트는 개발자 프리뷰 등록 없이 가능. 타인에게 공유하려면 그 사람도 Developer Mode ON 필요(공개 스토어 배포는 프리뷰라 아직 불가).
 
 ### QR로 한 번에 (선택)
 딥링크 포맷:
@@ -65,7 +72,7 @@ fb-viewapp://web_app_deep_link?appName=Claude&appUrl=<URL-인코딩된-주소>
 ## 제가 못 하는 것 (님 손 필요)
 - **ANTHROPIC_API_KEY 발급** + Worker 시크릿/Node 환경변수에 주입
 - **Vercel/Cloudflare 로그인** (대화형) 및 **GitHub Pages 토글**
-- **메타 개발자 프리뷰 등록 + 본인 안경 페어링** (본인 안경 테스트는 가능, 일반 배포는 파트너 제한)
+- **Meta AI 앱에서 Developer Mode 토글** (정식 등록 불필요 / 일반 배포만 파트너 제한)
 - **실제 안경/Xcode/Android Studio 빌드** (음성 네이티브)
 
 이 4가지만 통과하면 안경에서 **모니터링 + 텍스트/핸드라이팅 질문**이 작동합니다.
