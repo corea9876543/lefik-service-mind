@@ -1,45 +1,42 @@
 # 레이밴 음성 질문 — 네이티브 컴패니언 골격
 
-웹(`ask.html`)은 폰 브라우저에서 텍스트·음성(Web Speech API)으로 지금 작동합니다.
-하지만 **렌즈 마이크로 음성 질문**은 Meta Wearables Device Access Toolkit의
-**네이티브 경로(Swift/Kotlin)**가 필요합니다 — 마이크/오디오 딥 액세스가 모바일 SDK에 있기 때문.
+웹 앱(`../glasses/`)은 D-pad + Neural Handwriting(텍스트)로 안경에서 작동합니다.
+**음성 질문**은 네이티브 경로가 필요해 이 골격을 둡니다.
 
-> ⚠️ 이 디렉터리는 **동작 골격 + 매핑 가이드**입니다. 실제 빌드·테스트는
-> Toolkit 프리뷰 + 실제 안경 + Xcode/Android Studio가 필요하므로 이 레포에서는 검증 불가.
-> 정확한 API 시그니처는 https://wearables.developer.meta.com/docs/ 에서 확인하세요.
+> ⚠️ **검증된 사실 (v0.7.0 기준, 2026-06)**
+> - iOS SPM: `https://github.com/facebook/meta-wearables-dat-ios` (v0.7.0)
+> - Android Maven: `com.meta.wearable:mwdat-core:0.7.0`, `:mwdat-camera:0.7.0`, `:mwdat-mockdevice:0.7.0`
+> - 매니페스트: `com.meta.wearable.mwdat.APPLICATION_ID`
+> - 확인된 능력: **카메라 스트리밍 · 디스플레이 출력 · 세션 라이프사이클 · MockDevice(하드웨어 없이 테스트)**
+> - **안경 마이크 직접 캡처 API는 v0.7에서 미확인** → 아래는 **폰 마이크 + 온디바이스 STT**로 음성을 받고, 답을 **렌즈 디스플레이**에 띄우는 구조. 디스플레이/오디오 정확한 심볼은 https://wearables.developer.meta.com/docs/develop/ 확인.
 
 ## 데이터 흐름 (음성)
 
 ```
-레이밴 마이크 ──(Toolkit audio)──▶ 컴패니언 앱
-   │  STT (온디바이스 또는 클라우드)
-   ▼
-POST {ASK_BACKEND}/ask  { question, target:"model"|"session" }
-   │
+폰 마이크 ─(SFSpeechRecognizer / Android SpeechRecognizer)─▶ 텍스트
+   │  POST {ASK_BACKEND}/ask { question, target }
    ▼  답변(JSON)
-컴패니언 앱 ──(Toolkit display)──▶ 렌즈에 1~3문장 표시
+컴패니언 앱 ─(MWDAT 디스플레이 API)─▶ 레이밴 렌즈에 1~3문장
 ```
+`{ASK_BACKEND}`는 `../backend/`(Worker 또는 Node)와 동일. **웹·안경이 같은 백엔드 공유.**
 
-`{ASK_BACKEND}`는 이 레포의 `backend/ask-server.mjs`와 동일한 엔드포인트입니다.
-즉 **웹과 안경이 같은 백엔드를 공유** — 경로 A/B 로직을 한 번만 구현하면 됩니다.
+## iOS (Swift)
 
-## iOS (Swift) 골격
+**Package.swift / SPM**: `https://github.com/facebook/meta-wearables-dat-ios` @ `0.7.0`
+**Info.plist**: `NSMicrophoneUsageDescription`, `NSSpeechRecognitionUsageDescription`, + MWDAT 앱 ID 설정
 
 ```swift
-// Wearables Device Access Toolkit (iOS) — 개념 골격.
-// 실제 타입/메서드명은 Toolkit 문서 확인.
-import WearablesDeviceAccess   // TODO: 실제 모듈명 확인
+import Speech
+import MetaWearablesDAT   // TODO: 실제 모듈명 SDK 확인
 
-let ASK_BACKEND = "https://your-backend.example.com"
+let ASK_BACKEND = "https://claude-glasses-ask.<계정>.workers.dev"
 
+// 1) 세션 시작 (MWDAT 라이프사이클) — 안경 연결/디스플레이 권한
+// 2) 폰 마이크 → STT
 func onVoiceButton() {
-    // 1) 렌즈/안경 마이크에서 오디오 캡처 (Toolkit audio API)
-    wearables.audio.startCapture { audioChunk in
-        // 2) STT → 텍스트 (SFSpeechRecognizer 또는 외부 STT)
-        speechToText(audioChunk) { question in
-            ask(question: question, target: "model")   // 경로 A
-        }
-    }
+    let recognizer = SFSpeechRecognizer(locale: Locale(identifier: "ko-KR"))!
+    // ... SFSpeechAudioBufferRecognitionRequest로 받은 최종 텍스트를 ask()에 전달
+    ask(question: recognizedText, target: "model")
 }
 
 func ask(question: String, target: String) {
@@ -48,42 +45,51 @@ func ask(question: String, target: String) {
     req.setValue("application/json", forHTTPHeaderField: "Content-Type")
     req.httpBody = try? JSONSerialization.data(withJSONObject: ["question": question, "target": target])
     URLSession.shared.dataTask(with: req) { data, _, _ in
-        guard let data, let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-              let answer = json["answer"] as? String else { return }
-        // 3) 렌즈 디스플레이에 답 표시 (Toolkit display API)
-        DispatchQueue.main.async { wearables.display.show(text: answer) }   // TODO: 실제 API
+        guard let data, let j = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let answer = j["answer"] as? String else { return }
+        DispatchQueue.main.async {
+            // 3) 렌즈에 표시 — MWDAT 디스플레이 API
+            // mwdatSession.display.showText(answer)   // TODO: 실제 API 확인
+        }
     }.resume()
 }
 ```
 
-## Android (Kotlin) 골격
+## Android (Kotlin)
 
+**`gradle/libs.versions.toml`**
+```toml
+mwdat = "0.7.0"
+mwdat-core = { group = "com.meta.wearable", name = "mwdat-core", version.ref = "mwdat" }
+mwdat-mockdevice = { group = "com.meta.wearable", name = "mwdat-mockdevice", version.ref = "mwdat" }
+```
+**AndroidManifest** (`<application>` 안)
+```xml
+<meta-data android:name="com.meta.wearable.mwdat.APPLICATION_ID" android:value="your_app_id"/>
+<!-- + RECORD_AUDIO 권한 -->
+```
 ```kotlin
-// Wearables Device Access Toolkit (Android) — 개념 골격. 실제 타입/메서드명은 문서 확인.
-const val ASK_BACKEND = "https://your-backend.example.com"
+const val ASK_BACKEND = "https://claude-glasses-ask.<계정>.workers.dev"
 
 fun onVoiceButton() {
-    wearables.audio.startCapture { audioChunk ->          // 1) 안경 마이크
-        speechToText(audioChunk) { question ->            // 2) STT
-            ask(question, target = "model")               // 경로 A
-        }
-    }
+    // 폰 SpeechRecognizer(ko-KR) → 최종 텍스트
+    ask(recognizedText, target = "model")
 }
-
 fun ask(question: String, target: String) {
     val body = JSONObject(mapOf("question" to question, "target" to target)).toString()
-    // OkHttp 등으로 POST
     httpPost("$ASK_BACKEND/ask", body) { json ->
         val answer = json.optString("answer")
-        runOnUiThread { wearables.display.showText(answer) }   // 3) 렌즈에 표시  // TODO: 실제 API
+        runOnUiThread { /* mwdatSession.display.showText(answer)  // TODO: 실제 API */ }
     }
 }
 ```
 
-## 구현 체크리스트
-- [ ] Wearables Toolkit(iOS/Android) SDK 통합 — GitHub Packages/스타터킷 참고
-- [ ] 자기 안경에 개발자 프리뷰 등록 (배포는 프리뷰 파트너만)
-- [ ] 마이크 캡처 → STT (온디바이스 권장: 지연·프라이버시)
-- [ ] `backend/ask-server.mjs` 배포 후 `ASK_BACKEND` 설정
-- [ ] 렌즈 표시는 **1~3문장**으로 제한 (백엔드가 이미 짧게 답하도록 지시됨)
-- [ ] 경로 B(세션 질문)는 polling 또는 푸시로 답 수신
+## 단계
+- [ ] MWDAT SDK 통합 (iOS SPM / Android Maven, v0.7.0)
+- [ ] 메타 개발자 프리뷰 등록 + 본인 안경 페어링 (또는 **MockDevice로 하드웨어 없이** 디스플레이 테스트)
+- [ ] 폰 마이크 권한 + STT (ko-KR)
+- [ ] `ASK_BACKEND` = 배포된 Worker/Node 주소
+- [ ] 디스플레이 출력 API 정확한 심볼을 SDK 샘플(`/samples`)·문서에서 확인해 `TODO` 교체
+- [ ] (가능 시) 안경 마이크 직접 캡처 — SDK 버전 업데이트 추적
+
+> 저는 이 환경에서 실제 안경/Xcode/Android Studio 빌드를 못 하므로, 위는 **검증된 좌표 + 골격**입니다. MockDevice로 하드웨어 없이도 디스플레이 흐름은 미리 검증 가능합니다.

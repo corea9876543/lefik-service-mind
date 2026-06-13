@@ -3,11 +3,15 @@
   "version": "1.0.0",
   "type": "module",
   "private": true,
-  "description": "레이밴/폰에서 Claude에게 질문하는 글랜스 백엔드 (경로 A: 모델 질문, 경로 B: 세션 큐)",
+  "description": "레이밴/폰에서 Claude에게 질문하는 백엔드 — Node 서버(경로 A+B) / Cloudflare Worker(경로 A)",
   "scripts": {
-    "start": "node ask-server.mjs"
+    "start": "node ask-server.mjs",
+    "deploy:worker": "wrangler deploy"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.88.0"
+  },
+  "devDependencies": {
+    "wrangler": "^3.0.0"
   }
 }

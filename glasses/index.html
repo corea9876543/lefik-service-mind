@@ -1,48 +1,52 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=600, height=600, initial-scale=1.0">
-<meta name="robots" content="noindex, nofollow, noarchive">
-<title>Claude on Glasses</title>
-<link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=600, height=600, initial-scale=1.0, user-scalable=no">
+  <meta name="description" content="Claude 세션 모니터링 + 질문 (모델/세션) 글래스 앱">
+  <meta name="mrbd-web-app-capable" content="yes">
+  <title>Claude on Glasses</title>
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="styles.css">
 </head>
-<!--
-  Meta Ray-Ban Display 웹 앱.
-  스펙: 600x600 / 검정 배경(검정=투명) / D-pad(방향키) 내비게이션 / 고대비 / .focusable
-  테스트: 브라우저에서 화살표키 = D-pad, Enter = 선택
-  배포: 공개 HTTPS URL → Meta AI 앱 → Devices → Display Glasses → App connections → Web apps → Add a web app
--->
 <body>
-  <div id="stage">
+  <div id="app">
 
-    <!-- ===== 모니터 화면 ===== -->
-    <section class="screen active" id="screen-monitor">
-      <header class="bar">
-        <span class="dot" id="m-dot"></span>
-        <span class="state" id="m-state">RUNNING</span>
+    <!-- ===== 홈/모니터 ===== -->
+    <div id="monitor" class="screen">
+      <header class="header">
+        <span class="dot focusable-none" id="m-dot"></span>
+        <h1 id="m-state">RUNNING</h1>
+        <span class="header-meta" id="m-rel">—</span>
       </header>
-      <div class="headline" id="m-headline">연결 중…</div>
-      <div class="bar2"><i id="m-bar"></i></div>
-      <div class="sub"><span id="m-step">—</span><span id="m-rel">—</span></div>
+      <div class="content">
+        <div class="headline" id="m-headline">연결 중…</div>
+        <div class="progress"><i id="m-bar"></i></div>
+        <div class="sub" id="m-step"></div>
+      </div>
+      <nav class="nav-bar">
+        <button class="nav-item focusable" data-action="go-ask">묻기 ▶</button>
+        <button class="nav-item focusable" data-action="refresh">새로고침</button>
+      </nav>
+    </div>
 
-      <button class="focusable nav" data-goto="screen-ask" id="m-go-ask">묻기 화면 ▶</button>
-    </section>
-
-    <!-- ===== 질문 화면 ===== -->
-    <section class="screen" id="screen-ask">
-      <header class="bar">
-        <button class="focusable chip" id="a-target" data-target="model">대상: 모델</button>
-        <button class="focusable chip nav" data-goto="screen-monitor">◀ 모니터</button>
+    <!-- ===== 질문 ===== -->
+    <div id="ask" class="screen hidden">
+      <header class="header">
+        <button class="back-btn focusable" data-action="back">&#8592;</button>
+        <h1>묻기</h1>
+        <button class="header-meta focusable" data-action="toggle-target" id="a-target">대상: 모델</button>
       </header>
-
-      <!-- 핸드라이팅/입력: 포커스 후 Neural Handwriting로 입력 -->
-      <input class="focusable" id="a-input" type="text" placeholder="질문 (핸드라이팅)" />
-      <button class="focusable primary" id="a-send">묻기</button>
-
-      <div class="answer" id="a-answer"></div>
-      <div class="meta" id="a-meta"></div>
-    </section>
+      <div class="content">
+        <input id="a-input" class="focusable" type="text"
+               placeholder="질문 (핸드라이팅)" data-submit-action="ask-send" />
+        <div class="answer" id="a-answer"></div>
+      </div>
+      <nav class="nav-bar">
+        <button class="nav-item focusable" data-action="ask-send">묻기</button>
+      </nav>
+    </div>
 
   </div>
   <script src="app.js"></script>

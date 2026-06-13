@@ -1,0 +1,7 @@
+name = "claude-glasses-ask"
+main = "worker.mjs"
+compatibility_date = "2026-06-01"
+compatibility_flags = ["nodejs_compat"]
+
+# 키는 코드/이 파일에 넣지 말 것. 시크릿으로:
+#   npx wrangler secret put ANTHROPIC_API_KEY
