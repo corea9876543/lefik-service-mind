@@ -1,0 +1,34 @@
+name: Deploy glasses web app to Pages
+
+# 이 브랜치에 푸시되면 실행. Pages를 자동 활성화(enablement) 후 리포 전체를 배포.
+# → 글래스 웹 앱은 /glasses/ 경로로 서빙됨.
+on:
+  push:
+    branches: ["claude/rayban-remote-monitoring-5x34bs"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+        with:
+          enablement: true
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: "."
+      - id: deployment
+        uses: actions/deploy-pages@v4
