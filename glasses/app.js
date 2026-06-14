@@ -5,7 +5,7 @@
   var CONFIG = {
     // backend 설정 시: 실시간 상태(/status) + 질문(/ask) 사용.
     // 비우면 아래 statusFallback(raw URL)로 상태만 표시(CDN 캐시로 수십 초~분 지연).
-    backend: '',   // 예: 'https://claude-glasses-ask.<계정>.workers.dev' 또는 cloudflared 주소
+    backend: 'https://oem-involved-cameras-real.trycloudflare.com',   // 예: 'https://claude-glasses-ask.<계정>.workers.dev' 또는 cloudflared 주소
     statusFallback: 'https://raw.githubusercontent.com/corea9876543/lefik-service-mind/claude/rayban-remote-monitoring-5x34bs/status.json',
     pollMs: 4000,
   };
