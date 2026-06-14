@@ -8,6 +8,18 @@
 > **왜 둘?** 경로 B(작업 중 세션에 질문)는 큐(`../inbox.json`)를 세션 옆에서 읽고/써야 해서,
 > 무상태 서버리스(Worker)로는 안 됩니다. "그냥 Claude에게 질문"(경로 A)은 Worker로 충분.
 
+## ⚡ 가장 쉬운 시작 (실시간 모니터 + 질문 한 방에)
+
+작업하는 **본인 컴퓨터**에서:
+```bash
+export ANTHROPIC_API_KEY=sk-ant-...     # 질문용(모니터링만이면 아무 값)
+cd backend && ./start-local.sh          # 백엔드 + cloudflared 터널 자동, 다음 단계까지 출력
+```
+출력된 안내대로 ① `./set-backend.sh <URL>` 후 "머지해줘" ② 작업 셸에 `export STATUS_ENDPOINT/STATUS_WRITE_KEY` 하면 끝.
+(`cloudflared` 필요: `brew install cloudflared`)
+
+아래는 수동/세부 옵션입니다.
+
 ## A) Cloudflare Worker — 경로 A (추천: 글랜스에서 모델 질문)
 ```bash
 cd backend
