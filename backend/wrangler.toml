@@ -3,5 +3,12 @@ main = "worker.mjs"
 compatibility_date = "2026-06-01"
 compatibility_flags = ["nodejs_compat"]
 
-# 키는 코드/이 파일에 넣지 말 것. 시크릿으로:
-#   npx wrangler secret put ANTHROPIC_API_KEY
+# 실시간 상태 저장용 KV. 먼저 만들고 아래 id를 채우세요:
+#   npx wrangler kv namespace create STATUS
+[[kv_namespaces]]
+binding = "STATUS"
+id = "<KV_NAMESPACE_ID>"
+
+# 시크릿(코드/이 파일에 넣지 말 것):
+#   npx wrangler secret put ANTHROPIC_API_KEY   # 질문(/ask)용
+#   npx wrangler secret put STATUS_WRITE_KEY     # 상태 push(/status POST) 보호용

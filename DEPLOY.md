@@ -76,3 +76,37 @@ fb-viewapp://web_app_deep_link?appName=Claude&appUrl=<URL-인코딩된-주소>
 - **실제 안경/Xcode/Android Studio 빌드** (음성 네이티브)
 
 이 4가지만 통과하면 안경에서 **모니터링 + 텍스트/핸드라이팅 질문**이 작동합니다.
+
+---
+
+## ★ 실시간 모니터링 (지금 작업을 안경에서 라이브로)
+
+기본 모니터는 `raw.githubusercontent`를 읽어 **CDN 캐시로 수십 초~5분 지연**됩니다(=실시간 아님).
+실시간으로 하려면 **작업 세션이 상태를 백엔드에 push → 안경이 백엔드를 폴링**합니다.
+
+```
+작업 세션(.claude/settings.json 훅) ─ status-push.sh ─▶ 백엔드 /status ◀─ 폴링 ─ 안경
+```
+
+### 1) 백엔드 띄우기 — 두 옵션
+- **(추천, 진짜 실시간) Node + cloudflared**: 작업하는 그 컴퓨터에서
+  ```bash
+  cd backend && npm install
+  ANTHROPIC_API_KEY=sk-ant-... STATUS_WRITE_KEY=mysecret npm start   # :8787, 메모리=즉시
+  cloudflared tunnel --url http://localhost:8787                      # → https://xxxx.trycloudflare.com
+  ```
+- **(항상 켜짐) Cloudflare Worker + KV**: `backend/README.md` 참고. KV는 ~수 초~1분 지연 가능.
+
+### 2) 안경 앱에 백엔드 연결
+`glasses/app.js`의 `CONFIG.backend` 를 위 주소(예: `https://xxxx.trycloudflare.com`)로 설정 → main에 머지(자동 재배포).
+
+### 3) 작업 세션에서 상태 push 켜기
+`.claude/settings.json` 에 훅이 이미 들어있음(매 턴 시작=running, 종료=waiting 자동 push).
+작업하는 셸에 환경변수만 주면 동작:
+```bash
+export STATUS_ENDPOINT=https://xxxx.trycloudflare.com/status
+export STATUS_WRITE_KEY=mysecret
+```
+(`STATUS_ENDPOINT` 없으면 훅은 조용히 무동작 → 다른 세션에 안전)
+
+> 더 세밀한 상태가 필요하면 작업 중 직접: `./status-push.sh --state running --headline "테스트 실행" --step 3/5`

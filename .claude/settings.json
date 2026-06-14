@@ -1,0 +1,18 @@
+{
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          { "type": "command", "command": "./status-push.sh --state running --headline \"작업 중\"" }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          { "type": "command", "command": "./status-push.sh --state waiting --headline \"턴 종료, 입력 대기\" --need" }
+        ]
+      }
+    ]
+  }
+}

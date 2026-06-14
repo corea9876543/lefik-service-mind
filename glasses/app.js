@@ -3,10 +3,14 @@
 
   // ==================== CONFIG (배포 시 여기만 수정) ====================
   var CONFIG = {
-    statusUrl: 'https://raw.githubusercontent.com/corea9876543/lefik-service-mind/claude/rayban-remote-monitoring-5x34bs/status.json',
-    askBackend: 'https://your-backend.example.com',   // backend(Worker/Node) 배포 주소
-    pollMs: 5000,
+    // backend 설정 시: 실시간 상태(/status) + 질문(/ask) 사용.
+    // 비우면 아래 statusFallback(raw URL)로 상태만 표시(CDN 캐시로 수십 초~분 지연).
+    backend: '',   // 예: 'https://claude-glasses-ask.<계정>.workers.dev' 또는 cloudflared 주소
+    statusFallback: 'https://raw.githubusercontent.com/corea9876543/lefik-service-mind/claude/rayban-remote-monitoring-5x34bs/status.json',
+    pollMs: 4000,
   };
+  function statusUrl() { return CONFIG.backend ? CONFIG.backend + '/status' : CONFIG.statusFallback; }
+  function askBase() { return CONFIG.backend; }
 
   // ==================== STATE ====================
   var state = { currentScreen: 'monitor', history: [], target: 'model', lastUpdated: null, pollTimer: null, askPoll: null };
@@ -56,7 +60,7 @@
   // ==================== 모니터 화면 ====================
   var LABEL = { running: 'RUNNING', waiting: 'WAITING', done: 'DONE', error: 'ERROR' };
   function tickMonitor() {
-    apiGet(CONFIG.statusUrl + '?t=' + Date.now()).then(function (s) {
+    apiGet(statusUrl() + '?t=' + Date.now()).then(function (s) {
       var st = (s.state || 'running').toLowerCase();
       document.body.dataset.state = LABEL[st] ? st : 'running';
       document.body.classList.toggle('live', st === 'running');
@@ -87,10 +91,11 @@
   function askSend() {
     var q = document.getElementById('a-input').value.trim();
     if (!q) { showToast('질문을 입력하세요', 'error'); return; }
+    if (!askBase()) { showToast('백엔드 미설정 (CONFIG.backend)', 'error'); return; }
     var ans = document.getElementById('a-answer');
     ans.textContent = ''; clearInterval(state.askPoll);
     showToast(state.target === 'model' ? '생각 중…' : '세션에 전달 중…');
-    fetch(CONFIG.askBackend + '/ask', {
+    fetch(askBase() + '/ask', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ question: q, target: state.target }),
     }).then(function (r) { return r.json().then(function (d) { if (!r.ok) throw new Error(d.error || r.status); return d; }); })
@@ -101,7 +106,7 @@
   }
   function pollSession(id, ans) {
     state.askPoll = setInterval(function () {
-      apiGet(CONFIG.askBackend + '/inbox/' + encodeURIComponent(id) + '?t=' + Date.now())
+      apiGet(askBase() + '/inbox/' + encodeURIComponent(id) + '?t=' + Date.now())
         .then(function (it) { if (it.status === 'answered') { clearInterval(state.askPoll); ans.textContent = it.answer; showToast('세션이 답함', 'success'); } })
         .catch(function () {});
     }, 3000);
