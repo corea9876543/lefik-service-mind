@@ -3,14 +3,15 @@
 
   // ==================== CONFIG (배포 시 여기만 수정) ====================
   var CONFIG = {
-    // backend 설정 시: 실시간 상태(/status) + 질문(/ask) 사용.
-    // 비우면 아래 statusFallback(raw URL)로 상태만 표시(CDN 캐시로 수십 초~분 지연).
-    backend: 'https://gene-tools-referral-momentum.trycloudflare.com',   // 예: 'https://claude-glasses-ask.<계정>.workers.dev' 또는 cloudflared 주소
+    // 질문/음성용 (/ask). 예: Cloudflare Worker 주소. 비면 '묻기' 비활성.
+    askBackend: '',
+    // 실시간 모니터용 (/status). 로컬 백엔드/터널/ KV Worker 주소. 비면 아래 raw로 폴백(지연).
+    statusBackend: '',
     statusFallback: 'https://raw.githubusercontent.com/corea9876543/lefik-service-mind/claude/rayban-remote-monitoring-5x34bs/status.json',
     pollMs: 4000,
   };
-  function statusUrl() { return CONFIG.backend ? CONFIG.backend + '/status' : CONFIG.statusFallback; }
-  function askBase() { return CONFIG.backend; }
+  function statusUrl() { return CONFIG.statusBackend ? CONFIG.statusBackend + '/status' : CONFIG.statusFallback; }
+  function askBase() { return CONFIG.askBackend; }
 
   // ==================== STATE ====================
   var state = { currentScreen: 'monitor', history: [], target: 'model', lastUpdated: null, pollTimer: null, askPoll: null };
