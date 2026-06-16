@@ -55,13 +55,16 @@ export default {
           model: 'claude-opus-4-8',
           max_tokens: 1024,
           system: GLANCE_SYSTEM,
-          output_config: { effort: 'low' },
           messages: [{ role: 'user', content: question }],
         }),
       });
-      const data = await r.json();
-      if (!r.ok) return json(r.status, { error: (data && data.error && data.error.message) || 'api error' });
-      const answer = (data.content || []).filter((x) => x.type === 'text').map((x) => x.text).join('').trim();
+      const raw = await r.text();
+      let data; try { data = JSON.parse(raw); } catch { data = null; }
+      if (!r.ok) {
+        const msg = (data && data.error && data.error.message) || raw.slice(0, 300) || 'api error';
+        return json(r.status, { error: msg, status: r.status });
+      }
+      const answer = ((data && data.content) || []).filter((x) => x.type === 'text').map((x) => x.text).join('').trim();
       return json(200, { target: 'model', answer });
     }
 
