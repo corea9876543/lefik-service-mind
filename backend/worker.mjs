@@ -50,6 +50,8 @@ export default {
           'x-api-key': env.ANTHROPIC_API_KEY,
           'anthropic-version': '2023-06-01',
           'content-type': 'application/json',
+          'accept': 'application/json',
+          'user-agent': 'rayban-glance/1.0 (+https://github.com/corea9876543/lefik-service-mind)',
         },
         body: JSON.stringify({
           model: 'claude-opus-4-8',
