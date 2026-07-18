@@ -21,9 +21,9 @@ KEY="$(tr -d '\r\n' < "$KEY_FILE")"
 [ -n "$KEY" ] || { echo "empty key: $KEY_FILE" >&2; exit 1; }
 
 pop_once() {
-  curl -fsS --max-time 10 -X POST "$BASE/inbox/pop" \
-    -H "Content-Type: application/json" -H "x-write-key: $KEY" \
-    --data-binary '{"queue":"to-claude"}' | \
+  # GET + answers 큐: pop은 GET 전용 라우트이며(QA 결함 B), answer는 명령 큐와 분리됨(QA 결함 A)
+  curl -fsS --max-time 10 "$BASE/inbox/pop?queue=answers" \
+    -H "x-write-key: $KEY" | \
   PYTHONUTF8=1 "$PY" -c '
 import json
 import os

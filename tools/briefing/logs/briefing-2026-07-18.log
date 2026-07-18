@@ -1,0 +1,5 @@
+2026-07-18 23:22:07,878 INFO source=sales status=skip reason=not configured
+2026-07-18 23:22:07,879 INFO source=reservations status=skip reason=not configured
+2026-07-18 23:22:07,879 INFO source=notion status=skip reason=not configured
+2026-07-18 23:22:07,879 INFO source=alerts status=skip reason=not configured
+2026-07-18 23:22:07,879 INFO cardCount=0

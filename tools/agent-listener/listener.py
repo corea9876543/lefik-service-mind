@@ -16,7 +16,7 @@ from pathlib import Path
 sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
 ENDPOINT = os.environ.get("AGENT_ENDPOINT", "https://claude-glasses-ask.yongyongyo.workers.dev").rstrip("/")
-POLL_SEC = int(os.environ.get("AGENT_POLL_SEC", "5"))
+POLL_SEC = int(os.environ.get("AGENT_POLL_SEC", "10"))
 EXEC_TIMEOUT_SEC = int(os.environ.get("AGENT_EXEC_TIMEOUT_SEC", "180"))
 MAX_AGE_SEC = int(os.environ.get("AGENT_MAX_AGE_SEC", "600"))
 SUMMARY_MAX = 280

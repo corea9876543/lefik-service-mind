@@ -56,3 +56,7 @@ schtasks /Create /TN "repic-hud-push" /SC MINUTE /MO 5 /TR "python C:\<경로>\p
 ## 6. 등록 후 재조회 및 기록
 
 등록 직후의 성공만으로 완료 처리하지 않습니다. 5~10분 기다린 뒤 `/hud`를 다시 조회해 `updatedAt`이 새 실행 시각으로 갱신됐는지 확인합니다. `push_hud.log`의 한 줄 결과와 스케줄러 최근 실행 결과도 대조하고, 확인 시각·sources·숫자 대조 결과·PHI 미포함 여부를 NAS측 셀프 검토 기록에 남깁니다. 비밀 값과 환자 단위 정보는 기록하지 않습니다.
+
+## 추가 주의 (QA 검증 반영, 2026-07-18)
+- 스케줄러 등록 시 명령의 `python`은 **절대경로**로 기입할 것(예: `C:\Python313\python.exe`) — 스케줄러 환경은 PATH가 다를 수 있다.
+- openssl 미설치 시: 서비스어카운트 서명 경로가 실패하므로, 설치(`winget install openssl`) 후 진행.

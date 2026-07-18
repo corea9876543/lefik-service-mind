@@ -70,3 +70,8 @@ git push -u origin feature/morning-briefing
 ```
 
 커밋과 PR 생성은 저장소 운영 절차에 따라 직접 수행합니다.
+
+## 추가 주의 (QA 검증 반영, 2026-07-18)
+- **CLAUDE_CLI는 절대경로 필수**: 이 PC의 claude CLI는 PATH 탐색으로 안 잡힐 수 있다(MSIX Python의 AppData 가상화).
+  `CLAUDE_CLI=C:\Users\admin\.local\bin\claude.exe` 로 지정할 것. 미지정 시 LLM 요약이 항상 실패하고 템플릿 폴백으로만 발행된다.
+- **수동 curl로 한글 push 금지**: Windows에서 인라인 `-d '{한글}'`은 CP949로 깨진다. 반드시 UTF-8 파일 + `--data-binary @파일` 경유.
