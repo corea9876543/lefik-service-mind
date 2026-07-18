@@ -48,7 +48,8 @@
   }
 
   function mask(text) {
-    return String(text).replace(/[0-9][0-9,.]*\s*(만원|억|원|%|건)?/g, "●●●");
+    // 단위가 붙은 경우만 단위까지 함께 가림("1.8억원"→●●●), 단위 없으면 숫자만(공백 미흡수)
+    return String(text).replace(/[0-9][0-9,.]*(?:\s*(?:억원|만원|억|만|원|%|건))?/g, "●●●");
   }
 
   function displayText(text, card) {
@@ -99,8 +100,6 @@
   function fetchBriefing() {
     if (loading) return;
     loading = true;
-    cards = [];
-    current = 0;
     render();
     window.G.get("/briefing").then(function (data) {
       data = data || {};
@@ -110,10 +109,9 @@
         return card && typeof card.title === "string";
       }) : [];
       cards = sourceCards.length ? sourceCards.concat([REFRESH_CARD]) : [];
+      current = 0;
     }).catch(function () {
-      cards = [];
-      envelopeDate = null;
-      failCount = 0;
+      // 일시 오류 시 기존 카드 유지 — 화면이 비어 고착되지 않게(Codex #8)
     }).finally(function () {
       loading = false;
       render();
@@ -121,6 +119,8 @@
   }
 
   function onNav(direction) {
+    // 첫 카드(또는 빈 상태)에서 왼쪽 = 허브 복귀 (안경에는 Escape가 없음)
+    if (direction === "left" && (current === 0 || !cards.length)) { window.location.href = G.withKey("index.html"); return; }
     if (!cards.length || loading) return;
     var step = direction === "right" || direction === "down" ? 1 : -1;
     current = (current + step + cards.length) % cards.length;
@@ -128,7 +128,8 @@
   }
 
   function onSelect() {
-    if (!cards.length || loading) return;
+    if (loading) return;
+    if (!cards.length) { fetchBriefing(); return; } // 빈 화면에서 선택 = 재시도(Codex #8)
     if (cards[current].id === "refresh") {
       fetchBriefing();
       return;

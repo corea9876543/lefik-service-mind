@@ -71,7 +71,7 @@
       text("revenue-count", "");
     }
 
-    if (payload.escalations && payload.escalations.open !== null) {
+    if (payload.escalations && typeof payload.escalations.open === "number") {
       text("escalation-open", payload.escalations.open === 0 ? "이상 없음" : "열림 " + payload.escalations.open + "건");
     } else {
       text("escalation-open", "ops 수집 실패");
@@ -97,6 +97,8 @@
   G.input({
     onNav: function (direction) {
       if (direction !== "left" && direction !== "right") return;
+      // 첫 카드에서 왼쪽 = 허브 복귀 (안경에는 Escape가 없음)
+      if (direction === "left" && activeCard === 0) { window.location.href = G.withKey("index.html"); return; }
       activeCard = (activeCard + (direction === "right" ? 1 : -1) + cards.length) % cards.length;
       renderCard();
     },

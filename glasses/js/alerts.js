@@ -123,7 +123,7 @@
     alert.ack = true;
     renderList();
 
-    G.post("/alerts/ack", { ids: [alert.id] }).catch(function (error) {
+    G.post("/alerts/ack", { ids: [alert.id] }, G.writeKey()).catch(function (error) {
       alert.ack = false;
       renderList();
       console.warn("알림 읽음 처리 실패", error);
@@ -179,6 +179,8 @@
   }
 
   function onNav(direction) {
+    // 목록에서 왼쪽 = 허브 복귀 (안경에는 Escape가 없음)
+    if (direction === "left" && state !== "FLASH") { window.location.href = G.withKey("index.html"); return; }
     if (state === "FLASH" || alerts.length === 0) return;
     if (direction === "up") cursor = Math.max(0, cursor - 1);
     if (direction === "down") cursor = Math.min(alerts.length - 1, cursor + 1);

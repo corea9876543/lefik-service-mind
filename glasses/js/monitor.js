@@ -177,7 +177,8 @@
       return;
     }
     G.post("/inbox/push", {
-      queue: "to-claude",
+      // 명령 큐(to-claude)와 분리 — 리스너가 answer를 pop해 폐기하는 경합 방지(QA 결함 A)
+      queue: "answers",
       payload: {
         type: "answer",
         sessionId: currentStatus.session || "",
@@ -195,6 +196,8 @@
   }
 
   function onNav(direction) {
+    // 상태 화면에서 왼쪽 = 허브 복귀 (안경에는 Escape가 없음)
+    if (view !== "answer" && direction === "left") { window.location.href = G.withKey("index.html"); return; }
     if (view !== "answer" || !currentQuestion) return;
     if (direction === "left") {
       leaveAnswerView();

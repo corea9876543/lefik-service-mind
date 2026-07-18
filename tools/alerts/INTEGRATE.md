@@ -96,3 +96,7 @@ curl -s -X POST "https://claude-glasses-ask.yongyongyo.workers.dev/alerts/push" 
 1. 전송 응답의 `ok: true`만으로 완료 판단하지 않습니다.
 2. 브라우저에서 `https://claude-glasses-ask.yongyongyo.workers.dev/alerts`를 열어 `alerts[0]`이 방금 보낸 내용인지 확인합니다.
 3. 안경 또는 폰에서 Pages의 `glasses/alerts.html`을 열고, 새 `vip`/`escalation` 알림이 5초 안에 플래시되는지 확인합니다. 페이지를 처음 연 시점의 기존 알림은 재플래시되지 않으므로 페이지를 연 뒤 테스트 알림을 보내십시오.
+
+## 추가 주의 (QA 검증 반영, 2026-07-18)
+- **절단 규칙**: 제목은 20자, 본문은 60자를 넘으면 서버가 말없이 잘라낸다(말줄임표 처리). 발신측에서 미리 길이를 맞출 것.
+- **level 값 주의**: `vip`/`escalation`/`info` 외의 값(오타 포함)은 경고 없이 `info`로 강등되어 **플래시가 뜨지 않는다**. n8n expression에서 오타에 특히 주의.

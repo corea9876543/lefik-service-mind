@@ -205,9 +205,14 @@
     renderResult({ status: "timeout", label: activeLabel, summary: "리스너 응답 없음 — PC에서 run-listener.bat 확인", elapsedSec: 0 });
   }
 
+  var pollBusy = false;
+
   function pollOnce() {
+    if (pollBusy) return; // 요청 중복 방지 — 비원자 pop을 한 페이지가 스스로 경합하지 않게(Codex #4)
+    pollBusy = true;
     pollCount += 1;
-    request("/inbox/pop?queue=to-glasses", { method: "GET", headers: authHeaders(false) })
+    // reqId 필터: 현재 요청의 ack/result만 꺼낸다 — 이전 요청의 늦은 결과를 삼키지 않음(Codex #3)
+    request("/inbox/pop?queue=to-glasses&reqId=" + encodeURIComponent(activeReqId || ""), { method: "GET", headers: authHeaders(false) })
       .then(function (data) {
         if (data.item) handleInboxItem(data.item);
         else if (pollingExpired()) renderListenerTimeout();
@@ -216,7 +221,8 @@
         if (error.message !== "unauthorized") {
           if (pollingExpired()) renderListenerTimeout(); else hint.textContent = error.message;
         }
-      });
+      })
+      .finally(function () { pollBusy = false; });
   }
 
   function handleInboxItem(item) {
@@ -252,6 +258,8 @@
   }
 
   function onNav(direction) {
+    // 팔레트에서 왼쪽 = 허브 복귀 (안경에는 Escape가 없음)
+    if (state === "PALETTE" && direction === "left") { window.location.href = G.withKey("index.html"); return; }
     if (state === "PALETTE" && (direction === "up" || direction === "down")) {
       var count = paletteItems().length;
       cursor = (cursor + (direction === "down" ? 1 : -1) + count) % count;
