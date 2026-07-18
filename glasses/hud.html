@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="dark">
+  <title>레픽 운영 HUD</title>
+  <link rel="stylesheet" href="glasses.css">
+  <style>
+    .hud { width: min(100%, 720px); }
+    .hud-card { display: block; max-height: none; padding: 28px; text-align: left; transition: none; }
+    .hud-card[hidden] { display: none; }
+    .hud-head { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; }
+    .hud-head .card-title { font-size: 34px; }
+    .freshness { color: #d1d5db; font-size: 24px; font-weight: 700; white-space: nowrap; }
+    .freshness.stale { color: #facc15; }
+    .freshness.offline { color: #f87171; }
+    .hud-line { margin: 14px 0 0; font-size: 30px; font-variant-numeric: tabular-nums; }
+    .hud-dots { margin: 16px 0 0; color: #6b7280; font-size: 24px; text-align: center; letter-spacing: 8px; }
+    .hud-dots .active { color: #fff; }
+    @media (max-height: 600px) { .hud-card { padding: 18px 24px; } .hud-line { margin-top: 8px; } }
+  </style>
+</head>
+<body>
+  <main class="screen">
+    <div class="hud" aria-live="polite">
+      <section class="card hud-card" data-card="reservations">
+        <div class="hud-head"><h1 class="card-title">오늘 예약</h1><span class="freshness">OFFLINE</span></div>
+        <p class="hud-line" id="reservation-primary">연결 대기 중</p>
+        <p class="hud-line" id="reservation-secondary"></p>
+        <p class="hud-line" id="next-reservation"></p>
+      </section>
+      <section class="card hud-card" data-card="revenue" hidden>
+        <div class="hud-head"><h1 class="card-title">오늘 매출</h1><span class="freshness">OFFLINE</span></div>
+        <p class="hud-line" id="revenue-amount">연결 대기 중</p>
+        <p class="hud-line" id="revenue-count"></p>
+        <p class="hud-line" id="revenue-hint">[선택=10초 표시]</p>
+      </section>
+      <section class="card hud-card" data-card="escalations" hidden>
+        <div class="hud-head"><h1 class="card-title">에스컬레이션</h1><span class="freshness">OFFLINE</span></div>
+        <p class="hud-line" id="escalation-open">연결 대기 중</p>
+      </section>
+      <p class="hud-dots" aria-label="첫 번째 카드"><span class="active">●</span><span>○</span><span>○</span></p>
+    </div>
+  </main>
+  <script src="js/shared.js"></script>
+  <script src="js/hud.js"></script>
+</body>
+</html>
