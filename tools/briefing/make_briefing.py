@@ -283,10 +283,12 @@ def publish(config: dict[str, str], envelope: dict[str, Any], logger: logging.Lo
         logger.error("push failed: worker base or write key file missing")
         return False
     write_key = key_path.read_text(encoding="utf-8-sig").strip()
-    response = requests.post(base + "/briefing/push", json=envelope, headers={"x-write-key": write_key}, timeout=15)
+    # User-Agent 필수: 기본 python-requests UA는 Cloudflare가 403으로 차단할 수 있음
+    ua = {"User-Agent": "glasses-briefing-push/1.0"}
+    response = requests.post(base + "/briefing/push", json=envelope, headers={"x-write-key": write_key, **ua}, timeout=15)
     response.raise_for_status()
     logger.info("push status=%s", response.status_code)
-    check = requests.get(base + "/briefing", timeout=15)
+    check = requests.get(base + "/briefing", headers=ua, timeout=15)
     check.raise_for_status()
     stored = check.json()
     valid = stored.get("date") == envelope["date"] and len(stored.get("cards", [])) == len(envelope["cards"])
