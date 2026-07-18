@@ -29,10 +29,7 @@
     var params = new URLSearchParams(window.location.search);
     var key = params.get("key");
     if (!key) return;
-    storage.setItem("glasses_write_key", key);
-    params.delete("key");
-    var query = params.toString();
-    window.history.replaceState(null, "", window.location.pathname + (query ? "?" + query : "") + window.location.hash);
+    G.setWriteKey(key);
   }
 
   function showToast(message, isError) {
@@ -169,7 +166,7 @@
   }
 
   function sendAnswer() {
-    var key = storage.getItem("glasses_write_key");
+    var key = window.G ? G.writeKey() : null;
     var question = currentQuestion;
     if (!question) {
       leaveAnswerView();

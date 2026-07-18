@@ -37,11 +37,11 @@
 
   if (window.G) G.BASE = base;
   if (params.get("key")) {
-    localStorage.setItem("glassesWriteKey", params.get("key"));
+    G.setWriteKey(params.get("key"));
   }
 
   function key() {
-    return localStorage.getItem("glassesWriteKey") || "";
+    return (window.G && G.writeKey()) || "";
   }
 
   function escapeHtml(value) {
@@ -131,7 +131,7 @@
   function request(path, options) {
     return fetch(base + path, options).then(function (response) {
       if (response.status === 401) {
-        localStorage.removeItem("glassesWriteKey");
+        G.clearWriteKey();
         renderKey("키가 올바르지 않습니다.");
         throw new Error("unauthorized");
       }
@@ -266,7 +266,7 @@
   function onSelect() {
     if (state === "KEY") {
       var input = document.getElementById("write-key");
-      if (input && input.value.trim()) { localStorage.setItem("glassesWriteKey", input.value.trim()); loadConfig(); }
+      if (input && input.value.trim()) { G.setWriteKey(input.value.trim()); loadConfig(); }
       return;
     }
     if (state === "PALETTE") {
@@ -291,7 +291,7 @@
     onNav: onNav,
     onSelect: onSelect,
     onBack: function () {
-      if (state === "PALETTE" || state === "KEY") window.location.href = "index.html";
+      if (state === "PALETTE" || state === "KEY") window.location.href = G.withKey("index.html");
       else renderPalette();
     }
   });
