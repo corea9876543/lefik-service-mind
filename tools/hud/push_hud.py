@@ -32,7 +32,9 @@ def _utc_iso():
 
 
 def _request_json(url, method="GET", headers=None, body=None, timeout=10):
-    request = urllib.request.Request(url, data=body, headers=headers or {}, method=method)
+    # User-Agent 필수: 기본 Python-urllib UA는 Cloudflare가 403으로 차단함
+    merged = {"User-Agent": "glasses-hud-push/1.0", **(headers or {})}
+    request = urllib.request.Request(url, data=body, headers=merged, method=method)
     with urllib.request.urlopen(request, timeout=timeout) as response:
         return json.loads(response.read().decode("utf-8"))
 

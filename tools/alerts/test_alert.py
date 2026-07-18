@@ -32,7 +32,8 @@ def request_json(path, method="GET", payload=None, key=None):
     body = None if payload is None else json.dumps(
         payload, ensure_ascii=False
     ).encode("utf-8")
-    headers = {"Accept": "application/json"}
+    # User-Agent 필수: 기본 Python-urllib UA는 Cloudflare가 403으로 차단함
+    headers = {"Accept": "application/json", "User-Agent": "glasses-alerts-test/1.0"}
     if body is not None:
         headers["Content-Type"] = "application/json; charset=utf-8"
     if key:

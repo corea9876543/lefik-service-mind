@@ -31,7 +31,8 @@ ANSWER_RULES = "\n\n답변 규칙: 한국어 평문 1~3문장. 마크다운·목
 
 def api_request(method, path, key, body=None):
     data = None
-    headers = {"Accept": "application/json", "x-write-key": key}
+    # User-Agent 필수: 기본 Python-urllib UA는 Cloudflare가 403으로 차단함
+    headers = {"Accept": "application/json", "x-write-key": key, "User-Agent": "glasses-agent-listener/1.0"}
     if body is not None:
         data = json.dumps(body, ensure_ascii=False).encode("utf-8")
         headers["Content-Type"] = "application/json; charset=utf-8"
