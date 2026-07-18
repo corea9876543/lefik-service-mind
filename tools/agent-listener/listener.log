@@ -1,1 +1,0 @@
-{"ts": "2026-07-18T11:16:32.373614Z", "reqId": "e2e-test-1", "presetId": "mission_control", "mode": "readonly", "status": "ok", "elapsedSec": 22.3, "promptHead": "MEMORY.md의 프로젝트 목록에서 남음 또는 미결로 표시된 항목 상위 3개를 중요도 순으로 요약하라. 파일에 접근할 수 없으면 그 사유만 한"}

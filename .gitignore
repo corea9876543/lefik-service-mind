@@ -1,0 +1,3 @@
+tools/**/*.log
+tools/**/logs/
+tools/**/__pycache__/
