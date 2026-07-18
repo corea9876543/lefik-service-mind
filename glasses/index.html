@@ -48,7 +48,7 @@
           renderFocus();
         });
         item.addEventListener("click", function () {
-          window.location.href = item.dataset.href;
+          window.location.href = G.withKey(item.dataset.href);
         });
       });
 
@@ -59,7 +59,7 @@
           renderFocus();
         },
         onSelect: function () {
-          window.location.href = items[focused].dataset.href;
+          window.location.href = G.withKey(items[focused].dataset.href);
         }
       });
 

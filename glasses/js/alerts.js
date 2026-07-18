@@ -198,7 +198,7 @@
   G.input({
     onNav: onNav,
     onSelect: onSelect,
-    onBack: function () { window.location.href = "index.html"; }
+    onBack: function () { window.location.href = G.withKey("index.html"); }
   });
   G.poll(pollNow, POLL_MS);
   document.addEventListener("visibilitychange", function () {

@@ -143,27 +143,48 @@
     };
   };
 
+  // 키 보관: localStorage가 유지되지 않는 웹뷰(안경)를 위해 메모리 폴백 + URL 전파를 병행한다.
+  var memKey = null;
+
   G.writeKey = function () {
-    return localStorage.getItem("glassesWriteKey");
+    var stored = null;
+    try { stored = localStorage.getItem("glassesWriteKey"); } catch (err) {}
+    return stored || memKey;
   };
 
   G.setWriteKey = function (key) {
-    localStorage.setItem("glassesWriteKey", key);
+    memKey = key;
+    try { localStorage.setItem("glassesWriteKey", key); } catch (err) {}
   };
 
-  // 진입 페이지가 어디든(허브 포함) ?key= 를 잡아 저장하고 주소에서 제거.
-  // 안경 등록 URL(허브)로 들어와도 이후 모든 모듈이 localStorage로 키를 읽는다.
+  G.clearWriteKey = function () {
+    memKey = null;
+    try { localStorage.removeItem("glassesWriteKey"); } catch (err) {}
+  };
+
+  // 페이지 이동 주소에 키를 실어 보낸다 — 도착 페이지의 captureKeyParam이 다시 잡는다.
+  G.withKey = function (href) {
+    var key = G.writeKey();
+    if (!key || href.indexOf("key=") !== -1) return href;
+    return href + (href.indexOf("?") !== -1 ? "&" : "?") + "key=" + encodeURIComponent(key);
+  };
+
+  // 진입 페이지가 어디든 ?key= 를 잡아 저장. localStorage 유지가 확인될 때만 주소에서 제거
+  // (유지 안 되는 환경에서는 주소에 남겨 새로고침/이동에도 키가 살아있게 한다).
   (function captureKeyParam() {
     try {
       var params = new URLSearchParams(window.location.search);
       var key = params.get("key");
-      if (key) {
-        G.setWriteKey(key);
+      if (!key) return;
+      G.setWriteKey(key);
+      var persisted = null;
+      try { persisted = localStorage.getItem("glassesWriteKey"); } catch (err) {}
+      if (persisted === key) {
         params.delete("key");
         var query = params.toString();
         window.history.replaceState(null, "", window.location.pathname + (query ? "?" + query : "") + window.location.hash);
       }
-    } catch (err) { /* localStorage 불가 환경에서도 페이지는 동작해야 함 */ }
+    } catch (err) { /* 어떤 환경에서도 페이지 렌더는 계속돼야 함 */ }
   })();
 
   G.fmtTime = function (iso) {

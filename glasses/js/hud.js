@@ -116,7 +116,7 @@
       }
       renderData();
     },
-    onBack: function () { window.location.href = "index.html"; }
+    onBack: function () { window.location.href = G.withKey("index.html"); }
   });
 
   renderCard();
