@@ -19,7 +19,7 @@ import requests
 KST = timezone(timedelta(hours=9))
 ENV_PATH = Path("C:/Users/admin/.claude/briefing.env")
 ORDER = ("sales", "reservations", "projects", "alerts", "summary")
-SOURCE_NAMES = ("sales", "reservations", "notion", "alerts")
+SOURCE_NAMES = ("sales", "reservations", "notion", "alerts", "memory")
 SCRIPT_DIR = Path(__file__).resolve().parent
 LOG_DIR = SCRIPT_DIR / "logs"
 
@@ -174,16 +174,26 @@ def collect_alerts(config: dict[str, str], _target_date: date) -> Any:
     return response.text[:2000]
 
 
+def collect_memory(config: dict[str, str], _target_date: date) -> str:
+    """MEMORY.md(프로젝트 관제탑 로컬 SoT)에서 미결·대기 항목 줄만 추출."""
+    text = Path(config["MEMORY_MD_PATH"]).read_text(encoding="utf-8")
+    markers = ("남음", "미결", "대기", "다음:", "⚠")
+    lines = [line for line in text.splitlines() if any(marker in line for marker in markers)]
+    return "\n".join(lines)[:4000]
+
+
 def collect_sources(config: dict[str, str], target_date: date, logger: logging.Logger) -> tuple[dict[str, str], dict[str, Any]]:
     required = {
         "sales": ("SALES_SA_JSON", "SALES_SHEET_ID"),
         "reservations": ("BRIEF_WORKER_BASE",),
         "notion": ("NOTION_API_KEY", "NOTION_BOARD_DB_ID"),
         "alerts": ("BRIEF_WORKER_BASE",),
+        "memory": ("MEMORY_MD_PATH",),
     }
     collectors: dict[str, Callable[[dict[str, str], date], Any]] = {
         "sales": collect_sales, "reservations": collect_reservations,
         "notion": collect_projects, "alerts": collect_alerts,
+        "memory": collect_memory,
     }
     statuses = {name: "skip" for name in SOURCE_NAMES}
     results: dict[str, Any] = {}
@@ -228,7 +238,8 @@ def prompt_for(results: dict[str, Any]) -> str:
         "성공한 소스만으로 카드 3~5장을 생성하세요. 출력은 JSON 배열만 쓰고 마크다운과 설명은 금지합니다. "
         "각 카드는 {id,title,lines,sensitive}이며 id는 sales/reservations/projects/alerts/summary 중 하나입니다. "
         "title은 한 줄 18자 이하, lines는 최대 3개이고 각 26자 이하입니다. 금액 노출 카드는 sensitive:true입니다. "
-        "환자 성명 등 개인정보는 금지하고 집계와 이니셜만 사용합니다. 한국어로 작성하세요.\n"
+        "환자 성명 등 개인정보는 금지하고 집계와 이니셜만 사용합니다. 한국어로 작성하세요. "
+        "memory 소스는 프로젝트 관제탑의 미결 항목 원장입니다 — 중요한 미결 상위 2~3개를 골라 projects 카드로 요약하세요.\n"
     )
     safe_sources = {("projects" if key == "notion" else key): value for key, value in results.items()}
     return rules + json.dumps(safe_sources, ensure_ascii=False, separators=(",", ":"))
