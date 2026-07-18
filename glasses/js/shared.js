@@ -151,6 +151,21 @@
     localStorage.setItem("glassesWriteKey", key);
   };
 
+  // 진입 페이지가 어디든(허브 포함) ?key= 를 잡아 저장하고 주소에서 제거.
+  // 안경 등록 URL(허브)로 들어와도 이후 모든 모듈이 localStorage로 키를 읽는다.
+  (function captureKeyParam() {
+    try {
+      var params = new URLSearchParams(window.location.search);
+      var key = params.get("key");
+      if (key) {
+        G.setWriteKey(key);
+        params.delete("key");
+        var query = params.toString();
+        window.history.replaceState(null, "", window.location.pathname + (query ? "?" + query : "") + window.location.hash);
+      }
+    } catch (err) { /* localStorage 불가 환경에서도 페이지는 동작해야 함 */ }
+  })();
+
   G.fmtTime = function (iso) {
     return new Intl.DateTimeFormat("ko-KR", {
       timeZone: "Asia/Seoul",
