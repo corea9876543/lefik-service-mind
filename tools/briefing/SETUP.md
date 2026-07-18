@@ -75,3 +75,8 @@ git push -u origin feature/morning-briefing
 - **CLAUDE_CLI는 절대경로 필수**: 이 PC의 claude CLI는 PATH 탐색으로 안 잡힐 수 있다(MSIX Python의 AppData 가상화).
   `CLAUDE_CLI=C:\Users\admin\.local\bin\claude.exe` 로 지정할 것. 미지정 시 LLM 요약이 항상 실패하고 템플릿 폴백으로만 발행된다.
 - **수동 curl로 한글 push 금지**: Windows에서 인라인 `-d '{한글}'`은 CP949로 깨진다. 반드시 UTF-8 파일 + `--data-binary @파일` 경유.
+
+## 세팅 완료 상태 (2026-07-18 밤, 집 PC)
+- `~/.claude/briefing.env` 생성됨: WORKER/키/CLAUDE_CLI/MEMORY_MD_PATH 구성. **memory 소스 추가** — MEMORY.md(관제탑 로컬 SoT)의 미결 줄을 projects 카드 근거로 사용, Notion 토큰 없이도 관제탑 카드 발행됨.
+- 스케줄러 등록됨: `GlassesBriefing` 매일 **08:15** (NAS HUD 08:00 push 직후 실데이터 반영 목적 — 원 설계 06:30에서 변경).
+- 미설정(선택): SALES_SA_JSON/SALES_SHEET_ID(어제 매출 정밀), NOTION_API_KEY/NOTION_BOARD_DB_ID(관제탑 API 직결) — env 주석 참조.
