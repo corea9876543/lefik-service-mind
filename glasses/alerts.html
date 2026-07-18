@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="dark">
+  <title>실시간 알림</title>
+  <link rel="stylesheet" href="glasses.css">
+  <style>
+    :root {
+      --alert-vip: var(--gold, #ffd54a);
+      --alert-escalation: var(--danger, #ff4d4f);
+      --alert-info: var(--muted, #a0a0a0);
+    }
+
+    body { background: #000; color: #fff; font-size: 28px; }
+    .alerts-screen { min-height: 100vh; padding: 24px; box-sizing: border-box; }
+    .alerts-heading { margin: 0 0 20px; font-size: 32px; }
+    .alert-list { display: grid; gap: 12px; margin: 0; padding: 0; list-style: none; }
+    .alert-item { border-left: 8px solid var(--alert-info); padding: 14px 18px; background: #111; opacity: .55; }
+    .alert-item[data-level="vip"] { border-color: var(--alert-vip); }
+    .alert-item[data-level="escalation"] { border-color: var(--alert-escalation); }
+    .alert-item[data-ack="false"] { opacity: 1; font-weight: 700; }
+    .alert-item[aria-current="true"] { outline: 3px solid #fff; outline-offset: -3px; }
+    .alert-item__top { display: flex; justify-content: space-between; gap: 16px; }
+    .alert-item__title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .alert-item__time { flex: none; color: #bbb; font-size: 28px; font-weight: 400; }
+    .alert-item__body { display: none; margin: 10px 0 0; color: #ddd; font-weight: 400; white-space: pre-wrap; }
+    .alert-item[aria-current="true"] .alert-item__title { overflow: visible; white-space: normal; }
+    .alert-item[aria-current="true"] .alert-item__body { display: block; }
+    .alert-empty { display: grid; min-height: 70vh; place-items: center; color: #aaa; }
+    .alert-empty p { margin: 0; font-size: 32px; }
+    .alert-flash { position: fixed; inset: 0; z-index: 10; display: grid; place-items: center; padding: 28px; background: #000; }
+    .alert-flash[hidden], .alert-list[hidden], .alert-empty[hidden] { display: none; }
+    .alert-flash.is-entering { animation: alert-pulse .45s ease-out 1; }
+    .flash-card { width: min(100%, 860px); border: 5px solid var(--alert-info); padding: 32px; box-sizing: border-box; background: #080808; }
+    .flash-card[data-level="vip"] { border-color: var(--alert-vip); }
+    .flash-card[data-level="escalation"] { border-color: var(--alert-escalation); }
+    .flash-badge { display: inline-block; margin-bottom: 18px; color: var(--alert-info); font-size: 28px; font-weight: 800; text-transform: uppercase; }
+    .flash-card[data-level="vip"] .flash-badge { color: var(--alert-vip); }
+    .flash-card[data-level="escalation"] .flash-badge { color: var(--alert-escalation); }
+    .flash-title { margin: 0; font-size: clamp(40px, 7vw, 64px); line-height: 1.1; }
+    .flash-body { margin: 18px 0 0; font-size: 30px; line-height: 1.25; }
+    .flash-time { margin: 18px 0 0; color: #bbb; font-size: 28px; }
+    .flash-title, .flash-body { display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; }
+    .flash-title { -webkit-line-clamp: 1; }
+    .flash-body { -webkit-line-clamp: 1; }
+
+    @keyframes alert-pulse {
+      0% { background: #fff; }
+      100% { background: #000; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .alert-flash.is-entering { animation: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="alerts-screen" aria-live="polite">
+    <h1 class="alerts-heading">실시간 알림</h1>
+    <section id="flash" class="alert-flash" aria-label="새 긴급 알림" aria-live="assertive" hidden>
+      <article id="flash-card" class="flash-card">
+        <span id="flash-level" class="flash-badge"></span>
+        <h2 id="flash-title" class="flash-title"></h2>
+        <p id="flash-body" class="flash-body"></p>
+        <p id="flash-time" class="flash-time"></p>
+      </article>
+    </section>
+    <ol id="list" class="alert-list" aria-label="최근 알림" hidden></ol>
+    <section id="empty" class="alert-empty">
+      <p>알림 없음</p>
+    </section>
+  </main>
+  <script src="js/shared.js"></script>
+  <script src="js/alerts.js"></script>
+</body>
+</html>

@@ -1,54 +1,72 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=600, height=600, initial-scale=1.0, user-scalable=no">
-  <meta name="description" content="Claude 세션 모니터링 + 질문 (모델/세션) 글래스 앱">
-  <meta name="mrbd-web-app-capable" content="yes">
-  <title>Claude on Glasses</title>
-  <link rel="icon" type="image/png" href="favicon.png">
-  <link rel="manifest" href="manifest.webmanifest">
-  <link rel="stylesheet" href="styles.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="dark">
+  <title>안경 허브</title>
+  <link rel="stylesheet" href="glasses.css">
 </head>
 <body>
-  <div id="app">
+  <main class="screen">
+    <p class="hub-clock" id="clock" aria-label="현재 시각"></p>
+    <nav class="hub" aria-label="모듈 선택">
+      <ul class="hub-list">
+        <li><button class="hub-item focused" type="button" data-href="monitor.html">모니터</button></li>
+        <li><button class="hub-item" type="button" data-href="hud.html">운영 HUD</button></li>
+        <li><button class="hub-item" type="button" data-href="agent.html">에이전트</button></li>
+        <li><button class="hub-item" type="button" data-href="briefing.html">브리핑</button></li>
+        <li><button class="hub-item" type="button" data-href="alerts.html">알림</button></li>
+      </ul>
+    </nav>
+    <p class="hint">위아래 이동 · 선택 진입</p>
+  </main>
+  <script src="js/shared.js"></script>
+  <script>
+    (function () {
+      "use strict";
+      var items = Array.from(document.querySelectorAll(".hub-item"));
+      var focused = 0;
+      var clock = document.getElementById("clock");
 
-    <!-- ===== 홈/모니터 ===== -->
-    <div id="monitor" class="screen">
-      <header class="header">
-        <span class="dot focusable-none" id="m-dot"></span>
-        <h1 id="m-state">RUNNING</h1>
-        <span class="header-meta" id="m-rel">—</span>
-      </header>
-      <div class="content">
-        <div class="headline" id="m-headline">연결 중…</div>
-        <div class="progress"><i id="m-bar"></i></div>
-        <div class="sub" id="m-step"></div>
-      </div>
-      <nav class="nav-bar">
-        <button class="nav-item focusable" data-action="go-ask">묻기 ▶</button>
-        <button class="nav-item focusable" data-action="refresh">새로고침</button>
-      </nav>
-    </div>
+      function renderFocus() {
+        items.forEach(function (item, index) {
+          var isFocused = index === focused;
+          item.classList.toggle("focused", isFocused);
+          item.setAttribute("aria-current", isFocused ? "true" : "false");
+        });
+        items[focused].focus({ preventScroll: true });
+      }
 
-    <!-- ===== 질문 ===== -->
-    <div id="ask" class="screen hidden">
-      <header class="header">
-        <button class="back-btn focusable" data-action="back">&#8592;</button>
-        <h1>묻기</h1>
-        <button class="header-meta focusable" data-action="toggle-target" id="a-target">대상: 모델</button>
-      </header>
-      <div class="content">
-        <input id="a-input" class="focusable" type="text"
-               placeholder="질문 (핸드라이팅)" data-submit-action="ask-send" />
-        <div class="answer" id="a-answer"></div>
-      </div>
-      <nav class="nav-bar">
-        <button class="nav-item focusable" data-action="ask-send">묻기</button>
-      </nav>
-    </div>
+      function updateClock() {
+        clock.textContent = G.fmtTime(new Date().toISOString());
+      }
 
-  </div>
-  <script src="app.js"></script>
+      items.forEach(function (item, index) {
+        item.addEventListener("focus", function () {
+          focused = index;
+          renderFocus();
+        });
+        item.addEventListener("click", function () {
+          window.location.href = item.dataset.href;
+        });
+      });
+
+      G.input({
+        onNav: function (direction) {
+          if (direction !== "up" && direction !== "down") return;
+          focused = (focused + (direction === "down" ? 1 : -1) + items.length) % items.length;
+          renderFocus();
+        },
+        onSelect: function () {
+          window.location.href = items[focused].dataset.href;
+        }
+      });
+
+      updateClock();
+      G.poll(updateClock, 1000);
+      renderFocus();
+    }());
+  </script>
 </body>
 </html>

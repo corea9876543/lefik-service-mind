@@ -5,9 +5,8 @@ compatibility_date = "2026-06-01"
 # 질문(/ask)만 쓰려면 이대로 두고 배포하면 됩니다. 필요한 시크릿:
 #   npx wrangler secret put ANTHROPIC_API_KEY
 #
-# (선택) 실시간 모니터링까지 Worker로 하려면 KV 추가:
-#   npx wrangler kv namespace create STATUS    → 나온 id를 아래에 넣고 주석 해제
+# 실시간 모니터링용 KV (2026-06-18 연결됨). 쓰기 보호 시크릿(별도 1회):
 #   npx wrangler secret put STATUS_WRITE_KEY
-# [[kv_namespaces]]
-# binding = "STATUS"
-# id = "<KV_NAMESPACE_ID>"
+[[kv_namespaces]]
+binding = "STATUS"
+id = "2326eb5475314cc3a0e424f8ffccf2dc"

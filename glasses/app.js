@@ -6,7 +6,7 @@
     // 질문/음성용 (/ask). 예: Cloudflare Worker 주소. 비면 '묻기' 비활성.
     askBackend: 'https://claude-glasses-ask.yongyongyo.workers.dev',
     // 실시간 모니터용 (/status). 로컬 백엔드/터널/ KV Worker 주소. 비면 아래 raw로 폴백(지연).
-    statusBackend: '',
+    statusBackend: 'https://claude-glasses-ask.yongyongyo.workers.dev',
     statusFallback: 'https://raw.githubusercontent.com/corea9876543/lefik-service-mind/claude/rayban-remote-monitoring-5x34bs/status.json',
     pollMs: 4000,
   };

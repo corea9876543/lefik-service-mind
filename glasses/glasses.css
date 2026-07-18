@@ -1,0 +1,127 @@
+:root {
+  color-scheme: dark;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #000;
+  color: #fff;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100%;
+  min-height: 100%;
+  margin: 0;
+  background: #000;
+  color: #fff;
+}
+
+body {
+  min-height: 100vh;
+  overflow: hidden;
+  font-size: 28px;
+  line-height: 1.25;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+.screen {
+  position: relative;
+  display: flex;
+  min-height: 100vh;
+  align-items: center;
+  justify-content: center;
+  padding: 56px 32px 64px;
+}
+
+.card {
+  display: -webkit-box;
+  width: min(100%, 720px);
+  max-height: 5em;
+  overflow: hidden;
+  padding: 40px;
+  text-align: center;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
+  transition: opacity 160ms ease;
+}
+
+.card-title {
+  margin: 0;
+  font-size: 36px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.badge {
+  display: inline-block;
+  padding: 4px 10px;
+  color: #000;
+  font-size: 0.75em;
+  font-weight: 700;
+}
+
+.badge.running { background: #4ade80; }
+.badge.waiting { background: #facc15; }
+.badge.error { background: #f87171; }
+.badge.offline { background: #6b7280; color: #fff; }
+
+.hub {
+  width: min(100%, 640px);
+}
+
+.hub-clock {
+  position: fixed;
+  top: 16px;
+  left: 24px;
+  margin: 0;
+  color: #d1d5db;
+  font-size: 22px;
+  font-variant-numeric: tabular-nums;
+}
+
+.hub-list {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.hub-item {
+  display: block;
+  width: 100%;
+  border: 2px solid #fff;
+  padding: 12px 20px;
+  background: #000;
+  color: #fff;
+  text-align: left;
+  transition: opacity 160ms ease;
+}
+
+.hub-item.focused {
+  background: #fff;
+  color: #000;
+}
+
+.hint {
+  position: fixed;
+  right: 16px;
+  bottom: 12px;
+  left: 16px;
+  margin: 0;
+  color: #9ca3af;
+  font-size: 18px;
+  text-align: center;
+}
+
+@media (max-height: 420px) {
+  .screen { padding: 42px 24px 48px; }
+  .hub-list { gap: 4px; }
+  .hub-item { padding: 6px 16px; }
+}

@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="dark">
+  <title>에이전트 명령</title>
+  <link rel="stylesheet" href="glasses.css">
+  <style>
+    .agent-shell { width: min(100%, 720px); }
+    .agent-heading { margin: 0 0 16px; font-size: 36px; }
+    .agent-list { display: grid; max-height: 66vh; gap: 8px; overflow-y: auto; margin: 0; padding: 0; list-style: none; }
+    .agent-option { width: 100%; border: 2px solid #fff; padding: 10px 16px; background: #000; color: #fff; text-align: left; }
+    .agent-option.focused { background: #fff; color: #000; }
+    .agent-card { width: 100%; max-height: none; border: 2px solid #fff; padding: 28px; text-align: left; }
+    .agent-card p { margin: 8px 0 0; }
+    .agent-form { display: grid; gap: 12px; }
+    .agent-input { width: 100%; min-height: 72px; border: 2px solid #fff; padding: 12px; background: #000; color: #fff; font: inherit; resize: none; }
+    .agent-key { min-height: auto; }
+    .agent-actions { display: flex; gap: 8px; }
+    .agent-button { flex: 1; border: 2px solid #fff; padding: 10px; background: #fff; color: #000; font: inherit; }
+    .agent-secondary { background: #000; color: #fff; }
+    .agent-summary { display: -webkit-box; overflow: hidden; white-space: pre-line; -webkit-box-orient: vertical; -webkit-line-clamp: 4; }
+    .agent-meta { color: #d1d5db; font-size: 22px; }
+    @media (max-height: 420px) {
+      .agent-heading { margin-bottom: 8px; font-size: 30px; }
+      .agent-list { max-height: 62vh; }
+      .agent-card { padding: 16px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="screen">
+    <section id="agent-root" class="agent-shell" aria-live="polite"></section>
+    <p id="agent-hint" class="hint"></p>
+  </main>
+  <script src="js/shared.js"></script>
+  <script src="js/agent.js"></script>
+</body>
+</html>
