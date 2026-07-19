@@ -5,9 +5,10 @@
     {
       "id": "sales_today",
       "label": "오늘 매출 요약",
-      "mode": "readonly",
+      "mode": "action",
       "cwd": "C:/Users/admin/Desktop/service-mind",
-      "prompt": "[레픽] 일간매출 SoT 시트 접근 수단이 있으면 오늘 수납액 합계와 어제 대비 증감을 요약하라. 접근 수단이 없으면 '이 위치에서는 매출 시트 접근 불가'라고 한 문장으로 답하라. 환자 성명 등 PHI를 출력하지 마라."
+      "allowedTools": ["Bash(curl:*)"],
+      "prompt": "curl로 https://claude-glasses-ask.yongyongyo.workers.dev/hud 를 조회해 revenue.amountKrw(오늘 수납액 합계)와 txCount(건수)를 요약하라. revenue가 null이거나 조회 실패면 그 사유만 한 문장. 환자 성명 등 PHI를 출력하지 마라."
     },
     {
       "id": "sales_vs_yesterday",
@@ -26,9 +27,10 @@
     {
       "id": "reservations_today",
       "label": "오늘 예약 현황",
-      "mode": "readonly",
+      "mode": "action",
       "cwd": "C:/Users/admin/Desktop/service-mind",
-      "prompt": "오늘 예약 데이터 접근 수단이 있으면 개인 식별정보 없이 총 건수와 시간대별 혼잡도만 요약하라. 접근할 수 없으면 그 사유만 한 문장으로 답하라. 환자 성명 등 PHI를 출력하지 마라."
+      "allowedTools": ["Bash(curl:*)"],
+      "prompt": "curl로 https://claude-glasses-ask.yongyongyo.workers.dev/hud 를 조회해 오늘 예약 현황을 요약하라: reservations.total(유효 예약수)·arrived(내원 누적)·inClinic(현재 원내)·noshow·cancelled·remaining(남은 예약)·nextReservation(다음 예약 시각·인원). 숫자만 간결히 한국어로. 조회 실패 시 그 사유만 한 문장. 환자 성명 등 PHI를 출력하지 마라."
     },
     {
       "id": "todo_brief",

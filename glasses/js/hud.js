@@ -52,7 +52,10 @@
 
     renderFreshness(freshness(payload.updatedAt));
     if (payload.reservations) {
-      text("reservation-primary", "예약 " + payload.reservations.total + " · 내원 " + payload.reservations.arrived);
+      var rz = payload.reservations;
+      var head = "예약 " + (rz.total == null ? "?" : rz.total) + " · 내원 " + rz.arrived;
+      if (rz.inClinic != null) head += " (현재 " + rz.inClinic + ")";
+      text("reservation-primary", head);
       text("reservation-secondary", "노쇼 " + payload.reservations.noshow + " · 취소 " + payload.reservations.cancelled);
       text("next-reservation", payload.nextReservation
         ? "다음 " + payload.nextReservation.time + " (" + payload.nextReservation.count + "명)"
